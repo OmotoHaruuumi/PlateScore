@@ -4,15 +4,42 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 
 type HomeScreenProps = {
     onPressStartCapture: () => void;
+    onPressAddMenu: () => void;
+    onPressNextMenu: () => void;
+    selectedMenuName?: string;
 };
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onPressStartCapture }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ 
+    onPressStartCapture,
+    onPressAddMenu,
+    onPressNextMenu,
+    selectedMenuName,
+}) => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Food Trainer</Text>
             <Text style={styles.subtitle}>盛り付けチェックアプリ </Text>
-            <View style={styles.buttonWrapper}>
-                <Button title="Start Capture" onPress={onPressStartCapture} />
+
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>メニュー</Text>
+                <Text style={styles.menuLabel}>
+                    選択中メニュー：{selectedMenuName ?? '（未選択）'}
+                </Text>
+            </View>
+
+            <View style={styles.buttonRow}>
+                <View style={styles.buttonWrapper}>
+                    <Button title="新規メニュー登録" onPress={onPressAddMenu}/>
+                </View>
+                 <View style={styles.buttonWrapper}>
+                    <Button title="メニュー切り替え" onPress={onPressNextMenu}/>
+                </View>
+            </View>
+
+            <View style={styles.section}>
+                <View style={styles.buttonWrapper}>
+                    <Button title="Start Capture" onPress={onPressStartCapture} />
+                </View>
             </View>
         </View>
     );
@@ -23,12 +50,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     paddingHorizontal: 24,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
@@ -37,8 +64,26 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 24,
   },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  menuLabel: {
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+  },
   buttonWrapper: {
+    flex: 1,
+    marginRight: 8,
+  },
+  startButtonWrapper: {
     marginTop: 8,
-    width: '60%',
   },
 });

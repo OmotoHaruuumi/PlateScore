@@ -48,7 +48,7 @@ export default function App() {
   const newMenu: Menu = {
     id: String(Date.now()),
     name: `メニュー${menus.length + 1}`,
-    imageUri: asset.uri
+    imageUri: asset.uri,
   };
 
 
@@ -64,7 +64,7 @@ export default function App() {
       return;
     }
 
-    const currentIndex = menus.findIndex((menu)= > menu.id === selectedMenuId);
+    const currentIndex = menus.findIndex((menu) => menu.id === selectedMenuId);
     const nextIndex = (currentIndex + 1) % menus.length;
     setSelectedMenuId(menus[nextIndex].id);
   };

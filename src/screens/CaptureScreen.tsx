@@ -1,13 +1,23 @@
 // src/screens/CaptureScreen.tsx
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, Image } from 'react-native';
 import {CameraView, useCameraPermissions} from  'expo-camera'
 
 type CaptureScreenProps = {
     onPressBack: () => void;
+    onPressAddMenu: () => void;
+    onPressNextMenu: () => void;
+    selectedMenuImageUri?: string | null;
+    selectedMenuName?: string;
 };
 
-export const CaptureScreen: React.FC<CaptureScreenProps> = ({ onPressBack }) => {
+export const CaptureScreen: React.FC<CaptureScreenProps> = ({ 
+    onPressBack,
+    onPressAddMenu,
+    onPressNextMenu,
+    selectedMenuImageUri,
+    selectedMenuName,
+ }) => {
     // カメラ権限の状態と，権限リクエスト関数
     const [permission, requestPermission] = useCameraPermissions();
     
@@ -41,6 +51,15 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({ onPressBack }) => 
             <CameraView style={StyleSheet.absoluteFill} facing="back" />
             
             {/* 画面上に重ねるUI（戻るボタンなど） */}
+            {selectedMenuImageUri && (
+                <Image
+                    source = {{uri: selectedMenuImageUri}}
+                    style = {StyleSheet.absoluteFill}
+                    resizeMode = "cover"
+                />
+            )}
+
+
             <View style={styles.overlayTop}>
                 <Button title="ホームに戻る" onPress={onPressBack} />
             </View>
@@ -49,6 +68,16 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({ onPressBack }) => 
                 <Text style={styles.helpText}>
                     器を中央に合わせてください
                 </Text>
+
+                <View style={styles.menuButtonRow}>
+                    <View style={styles.menuButtonWrapper}>
+                        <Button title='新規メニュー登録' onPress={onPressAddMenu}/>
+                    </View>
+                    <View style={styles.menuButtonWrapper}>
+                        <Button title='メニュー切り替え' onPress={onPressNextMenu}/>
+                    </View>
+                </View>
+
                 {/* ここに将来「撮影ボタン」を追加します */}
             </View>
         </View>
@@ -75,18 +104,31 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 40,
     left: 16,
+    right: 16,
   },
   overlayBottom: {
     position: 'absolute',
     bottom: 40,
-    left: 0,
-    right: 0,
+    left: 16,
+    right: 16,
     alignItems: 'center',
   },
   helpText: {
     color: 'white',
     fontSize: 16,
     marginBottom: 12,
+  },
+  menuLabel: {
+    color: 'white',
+    fontSize: 14,
+  },
+  menuButtonRow: {
+    flexDirection: 'row',
+    marginTop: 8,
+  },
+  menuButtonWrapper: {
+    flex: 1,
+    marginHorizontal: 4,
   },
 });
 
