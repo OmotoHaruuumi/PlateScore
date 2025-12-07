@@ -23,7 +23,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>メニュー</Text>
                 <Text style={styles.menuLabel}>
-                    選択中メニュー：{selectedMenuName ?? '（未選択）'}
+                    選択中メニュー：{selectedMenuName ?? "（未選択）"}
                 </Text>
             </View>
 
@@ -37,7 +37,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </View>
 
             <View style={styles.section}>
-                <View style={styles.buttonWrapper}>
+                <View style={styles.startButtonWrapper}>
                     <Button title="撮影スタート" onPress={onPressStartCapture} />
                 </View>
             </View>

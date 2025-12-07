@@ -1,7 +1,10 @@
 // src/screens/CaptureScreen.tsx
 import React from 'react';
-import { View, Text, Button, StyleSheet, Image } from 'react-native';
+import { View, Text, Button, StyleSheet, Image , Dimensions} from 'react-native';
 import {CameraView, useCameraPermissions} from  'expo-camera'
+
+
+const { width, height } = Dimensions.get('window');
 
 type CaptureScreenProps = {
     onPressBack: () => void;
@@ -54,7 +57,11 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
             {selectedMenuImageUri && (
                 <Image
                     source = {{uri: selectedMenuImageUri}}
-                    style = {StyleSheet.absoluteFill}
+                    style={{
+                        width: width,   // 画面の幅
+                        height: height, // 画面の高さ
+                        opacity: 0.2, 
+                    }}
                     resizeMode = "cover"
                 />
             )}
@@ -108,7 +115,7 @@ const styles = StyleSheet.create({
   },
   overlayBottom: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 100,
     left: 16,
     right: 16,
     alignItems: 'center',

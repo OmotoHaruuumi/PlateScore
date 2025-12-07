@@ -51,6 +51,11 @@ export default function App() {
     imageUri: asset.uri,
   };
 
+  setMenus((prev) => [...prev, newMenu]);
+  setSelectedMenuId(newMenu.id);
+  };
+
+
 
   // 次のメニューに切り替え（簡易メニュー選択）
   const handleSelectNextMenu = () => {
