@@ -1,14 +1,11 @@
+# プロジェクト構成
+
+このプロジェクトは、食品の盛り付け評価アプリ（ラーメン以外にも拡張可能）を想定したディレクトリ構造になっています。
+
+## ディレクトリ構成
+
+```text
 src/
-  screens/        # 画面コンポーネント（ナビゲーションの単位）
-  features/       # 機能ごとのロジック・UI（ドメイン単位）
-  ui/             # 共通UIパーツ（ボタン、カードなど）
-  core/           # アプリ全体で使う土台（設定・状態・ネイティブ橋渡し）
-  lib/            # 小さなユーティリティ関数
-  types/          # 共通の型定義
-  mocks/          # モックデータ・開発用
-
-
-  src/
   screens/        # 画面コンポーネント（ナビゲーションの単位）
   features/       # 機能ごとのロジック・UI（ドメイン単位）
   ui/             # 共通UIパーツ（ボタン、カードなど）
@@ -62,7 +59,6 @@ src/features/
   onboarding/             # 初回チュートリアル（必要になったら）
 
 
-
 src/ui/
   components/
     Button.tsx
@@ -111,8 +107,6 @@ src/lib/
     logger.ts
 
 
-
-rc/mocks/
 src/types/
   global.d.ts           # 画像importの型定義など
   index.ts
@@ -122,7 +116,6 @@ src/mocks/
     shoyu_01.json       # 開発用のモックテンプレート
   evaluation/
     sampleScores.json   # ダミースコア
-
 
 
 assets/
