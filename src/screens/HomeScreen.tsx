@@ -38,7 +38,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
             <View style={styles.section}>
                 <View style={styles.buttonWrapper}>
-                    <Button title="Start Capture" onPress={onPressStartCapture} />
+                    <Button title="撮影スタート" onPress={onPressStartCapture} />
                 </View>
             </View>
         </View>
