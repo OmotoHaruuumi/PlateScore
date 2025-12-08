@@ -1,18 +1,33 @@
 // src/screens/ResultScreen.tsx
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { View, Text, Button, StyleSheet, Image, ScrollView } from 'react-native';
 
 type ResultScreenProps = {
   onPressBackToCapture: () => void;
   templateImageUri: string | null;
   capturedImageUri: string | null;
+  onPressChangeTemplate: () => void; 
+  onPressChangeCapturedFromLibrary: () => void; 
 };
 
 export const ResultScreen: React.FC<ResultScreenProps> = ({
   onPressBackToCapture,
   templateImageUri,
-  capturedImageUri,
+  capturedImageUri, 
+  onPressChangeTemplate,
+  onPressChangeCapturedFromLibrary,
 }) => {
+  const [score, setScore] = useState<number | null>(null);
+
+  useEffect(() => {
+    if(!templateImageUri || !capturedImageUri){
+      setScore(0);
+      return;
+    }
+
+    setScore(100);
+  },[templateImageUri, capturedImageUri]);
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>撮影結果</Text>
@@ -28,11 +43,11 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         </View>
 
         <View style={styles.imageBlock}>
-          <Text style={styles.label}>撮影した写真</Text>
+          <Text style={styles.label}>比較対象</Text>
           {capturedImageUri ? (
             <Image source={{ uri: capturedImageUri }} style={styles.image} />
           ) : (
-            <Text style={styles.placeholder}>写真がありません</Text>
+            <Text style={styles.placeholder}>画像がありません</Text>
           )}
         </View>
       </View>
@@ -45,7 +60,19 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         </Text>
       </View>
 
-      <Button title="もう一度撮影する" onPress={onPressBackToCapture} />
+      <View style={{marginBottom: 12}}>
+        <Button
+          title='お手本を変更する（ライブラリから）'
+          onPress = {onPressChangeTemplate}/>
+      </View>
+
+      <View style={{marginBottom: 12}}>
+        <Button
+          title='比較する画像を変更する（ライブラリから）'
+          onPress = {onPressChangeCapturedFromLibrary}/>
+      </View>
+
+      <Button title='カメラで撮影する' onPress={onPressBackToCapture} />
     </ScrollView>
   );
 };

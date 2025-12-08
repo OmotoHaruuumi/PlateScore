@@ -10,6 +10,7 @@ type CaptureScreenProps = {
     onPressBack: () => void;
     onPressAddMenu: () => void;
     onPressNextMenu: () => void;
+    onPressPickCompareImage: () => void;
     selectedMenuImageUri?: string | null;
     selectedMenuName?: string;
     onCaptured?: (uri: string) => void;
@@ -19,6 +20,7 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
     onPressBack,
     onPressAddMenu,
     onPressNextMenu,
+    onPressPickCompareImage,
     selectedMenuImageUri,
     selectedMenuName,
     onCaptured
@@ -109,7 +111,12 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
             <View style={{ marginTop: 16 }}>
                 <Button title="シャッター" onPress={handlePressShutter} />
             </View>
-                {/* ここに将来「撮影ボタン」を追加します */}
+                <View style={{marginTop:50}}>
+                    <Button
+                        title = "手持ちの画像と比較"
+                        onPress = {onPressPickCompareImage}
+                    />
+                </View>
             </View>
         </View>
     );

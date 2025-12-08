@@ -6,13 +6,11 @@ import { CaptureScreen } from './src/screens/CaptureScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
 import { useMenuManager } from './src/features/menu/hooks/useMenuManager';
 import { MenuModals } from './src/features/menu/components/MenuModals';
+import { useComparisonFlow } from './src/features/evaluation/hooks/useComparisonFlow';
 
 type ScreenName = 'home' | 'capture' | 'result';
 
 export default function App() {
-  const [screen, setScreen] = useState<ScreenName>('home');
-  const [capturedImageUri, setCapturedImageUri] = useState<string | null>(null);
-
   const {
     menus,
     selectedMenu,
@@ -29,34 +27,46 @@ export default function App() {
     handleSelectMenu,
   } = useMenuManager();
 
+  const {
+    screen,
+    capturedImageUri,
+    goHome,
+    goCapture,
+    goResult, // （今は直接使わなくてもOK）
+    handleCapturedFromCamera,
+    pickCompareImageFromLibrary,
+  } = useComparisonFlow();
+
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
 
       {screen === 'home' ? (
         <HomeScreen
-          onPressStartCapture={() => setScreen('capture')}
+          onPressStartCapture={goCapture}
           onPressAddMenu={handleAddMenu}
           onPressNextMenu={handleOpenMenuPicker}
+          onPressPickCompareImage={pickCompareImageFromLibrary}
           selectedMenuName={selectedMenu?.name}
         />
       ) : screen === 'capture' ? (
         <CaptureScreen
-          onPressBack={() => setScreen('home')}
+          onPressBack={goHome}
           onPressAddMenu={handleAddMenu}
           onPressNextMenu={handleOpenMenuPicker}
+          onPressPickCompareImage={pickCompareImageFromLibrary}
           selectedMenuImageUri={selectedMenu?.imageUri}
           selectedMenuName={selectedMenu?.name}
-          onCaptured={(uri) => {
-            setCapturedImageUri(uri);
-            setScreen('result');
-          }}
+          onCaptured={handleCapturedFromCamera}
         />
       ) : (
         <ResultScreen
-        onPressBackToCapture={() => setScreen('capture')}
+        onPressBackToCapture={goCapture}
         templateImageUri={selectedMenu?.imageUri ?? null}
         capturedImageUri={capturedImageUri}
+        onPressChangeTemplate={handleOpenMenuPicker}
+        onPressChangeCapturedFromLibrary={pickCompareImageFromLibrary}
         />
       )
       }

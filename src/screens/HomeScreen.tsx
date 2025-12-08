@@ -6,6 +6,7 @@ type HomeScreenProps = {
     onPressStartCapture: () => void;
     onPressAddMenu: () => void;
     onPressNextMenu: () => void;
+    onPressPickCompareImage: () => void;
     selectedMenuName?: string;
 };
 
@@ -13,6 +14,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     onPressStartCapture,
     onPressAddMenu,
     onPressNextMenu,
+    onPressPickCompareImage,
     selectedMenuName,
 }) => {
     return (
@@ -39,6 +41,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <View style={styles.section}>
                 <View style={styles.startButtonWrapper}>
                     <Button title="撮影スタート" onPress={onPressStartCapture} />
+                </View>
+                <View style={styles.startButtonWrapper}>
+                  <Button
+                    title="手持ちの画像と比較"
+                    onPress={onPressPickCompareImage}
+                    />
                 </View>
             </View>
         </View>
