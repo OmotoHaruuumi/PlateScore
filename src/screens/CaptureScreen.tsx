@@ -1,5 +1,5 @@
 // src/screens/CaptureScreen.tsx
-import React from 'react';
+import React, {useRef} from 'react';
 import { View, Text, Button, StyleSheet, Image , Dimensions} from 'react-native';
 import {CameraView, useCameraPermissions} from  'expo-camera'
 
@@ -12,6 +12,7 @@ type CaptureScreenProps = {
     onPressNextMenu: () => void;
     selectedMenuImageUri?: string | null;
     selectedMenuName?: string;
+    onCaptured?: (uri: string) => void;
 };
 
 export const CaptureScreen: React.FC<CaptureScreenProps> = ({ 
@@ -20,9 +21,30 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
     onPressNextMenu,
     selectedMenuImageUri,
     selectedMenuName,
+    onCaptured
  }) => {
     // カメラ権限の状態と，権限リクエスト関数
     const [permission, requestPermission] = useCameraPermissions();
+
+    // カメラを使う
+    const cameraRef = useRef<CameraView | null>(null);
+
+    //シャッターを押された時の処理
+    const handlePressShutter = async () => {
+        if(!cameraRef.current || !onCaptured) return;
+
+        try{
+            const photo = await cameraRef.current.takePictureAsync({
+                quality: 1,
+                skipProcessing: true,
+            });
+        if (photo?.uri){
+            onCaptured(photo.uri);
+        }
+        } catch (e) {
+            console.warn('撮影に失敗しました', e);
+        }
+};
     
     // permissionがnullの場合，まだ権限の確認が終わっていない
     if (!permission) {
@@ -51,7 +73,7 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
     return (
         <View style={styles.container}>
             {/* カメラプレビュー表示部分 */}
-            <CameraView style={StyleSheet.absoluteFill} facing="back" />
+            <CameraView style={StyleSheet.absoluteFill} facing="back" ref={cameraRef}/>
             
             {/* 画面上に重ねるUI（戻るボタンなど） */}
             {selectedMenuImageUri && (
@@ -84,12 +106,16 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
                         <Button title='メニュー切り替え' onPress={onPressNextMenu}/>
                     </View>
                 </View>
-
+            <View style={{ marginTop: 16 }}>
+                <Button title="シャッター" onPress={handlePressShutter} />
+            </View>
                 {/* ここに将来「撮影ボタン」を追加します */}
             </View>
         </View>
     );
 };
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -139,4 +165,3 @@ const styles = StyleSheet.create({
   },
 });
 
-    
