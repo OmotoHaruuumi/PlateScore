@@ -1,6 +1,8 @@
 // src/screens/ResultScreen.tsx
 import React, {useEffect, useState} from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { usePlateScore } from '../features/evaluation/hooks/usePlateScore';
+
 
 type ResultScreenProps = {
   onPressBackToCapture: () => void;
@@ -19,16 +21,13 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   onPressChangeTemplate,
   onPressChangeCapturedFromLibrary,
 }) => {
-  const [score, setScore] = useState<number | null>(null);
-
-  useEffect(() => {
-    if(!templateImageUri || !capturedImageUri){
-      setScore(null);
-      return;
-    }
-
-    setScore(100);
-  },[templateImageUri, capturedImageUri]);
+  const {
+    score,
+    loading,
+    error,
+    croppedTemplateUri,
+    croppedCompareUri,
+  } = usePlateScore(templateImageUri, capturedImageUri);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -37,8 +36,8 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
       <View style={styles.row}>
         <View style={styles.imageBlock}>
           <Text style={styles.label}>お手本</Text>
-          {templateImageUri ? (
-            <Image source={{ uri: templateImageUri }} style={styles.image} />
+          {croppedTemplateUri ? (
+            <Image source={{ uri: croppedTemplateUri }} style={styles.image} />
           ) : (
             <Text style={styles.placeholder}>メニューが選択されていません</Text>
           )}
@@ -46,8 +45,8 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
         <View style={styles.imageBlock}>
           <Text style={styles.label}>比較対象</Text>
-          {capturedImageUri ? (
-            <Image source={{ uri: capturedImageUri }} style={styles.image} />
+          {croppedCompareUri ? (
+            <Image source={{ uri: croppedCompareUri }} style={styles.image} />
           ) : (
             <Text style={styles.placeholder}>画像がありません</Text>
           )}
