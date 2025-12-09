@@ -65,6 +65,7 @@ export default function App() {
         onPressBackToCapture={goCapture}
         templateImageUri={selectedMenu?.imageUri ?? null}
         capturedImageUri={capturedImageUri}
+        onPressAddMenu={handleAddMenu}
         onPressChangeTemplate={handleOpenMenuPicker}
         onPressChangeCapturedFromLibrary={pickCompareImageFromLibrary}
         />

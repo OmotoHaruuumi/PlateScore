@@ -1,11 +1,12 @@
 // src/screens/ResultScreen.tsx
 import React, {useEffect, useState} from 'react';
-import { View, Text, Button, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 
 type ResultScreenProps = {
   onPressBackToCapture: () => void;
   templateImageUri: string | null;
   capturedImageUri: string | null;
+  onPressAddMenu: () => void;
   onPressChangeTemplate: () => void; 
   onPressChangeCapturedFromLibrary: () => void; 
 };
@@ -14,6 +15,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   onPressBackToCapture,
   templateImageUri,
   capturedImageUri, 
+  onPressAddMenu,
   onPressChangeTemplate,
   onPressChangeCapturedFromLibrary,
 }) => {
@@ -21,7 +23,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
   useEffect(() => {
     if(!templateImageUri || !capturedImageUri){
-      setScore(0);
+      setScore(null);
       return;
     }
 
@@ -54,25 +56,29 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
       <View style={styles.scoreBlock}>
         <Text style={styles.scoreTitle}>暫定スコア（ダミー）</Text>
-        <Text style={styles.scoreValue}>100 点</Text>
+        <Text style={styles.scoreValue}>{score ?? '-'} 点</Text>
         <Text style={styles.scoreNote}>
           ここに将来、ヒストグラムやCNNによるスコアを表示します。
         </Text>
       </View>
 
-      <View style={{marginBottom: 12}}>
-        <Button
-          title='お手本を変更する（ライブラリから）'
-          onPress = {onPressChangeTemplate}/>
-      </View>
+      <View style={styles.actions}>
+        <TouchableOpacity style={styles.actionButton} onPress={onPressAddMenu}>
+          <Text style={styles.actionButtonText}>お手本を追加する</Text>
+        </TouchableOpacity>
 
-      <View style={{marginBottom: 12}}>
-        <Button
-          title='比較する画像を変更する（ライブラリから）'
-          onPress = {onPressChangeCapturedFromLibrary}/>
-      </View>
+        <TouchableOpacity style={styles.actionButton} onPress={onPressChangeTemplate}>
+          <Text style={styles.actionButtonText}>お手本を変更する（ライブラリ）</Text>
+        </TouchableOpacity>
 
-      <Button title='カメラで撮影する' onPress={onPressBackToCapture} />
+        <TouchableOpacity style={styles.actionButton} onPress={onPressChangeCapturedFromLibrary}>
+          <Text style={styles.actionButtonText}>比較画像を変更する（ライブラリ）</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.actionButton, styles.primaryButton]} onPress={onPressBackToCapture}>
+          <Text style={[styles.actionButtonText, styles.primaryButtonText]}>カメラで撮影する</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
@@ -130,5 +136,31 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     textAlign: 'center',
+  },
+  /* ボタン周りのスタイルを追加 */
+  actions: {
+    width: '100%',
+    paddingHorizontal: 16,
+    marginTop: 12,
+  },
+  actionButton: {
+    width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#f2f2f2',
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  actionButtonText: {
+    fontSize: 16,
+    color: '#111',
+  },
+  primaryButton: {
+    backgroundColor: '#2f95dc',
+  },
+  primaryButtonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
 });
