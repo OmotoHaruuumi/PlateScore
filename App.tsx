@@ -48,6 +48,7 @@ export default function App() {
           onPressAddMenu={handleAddMenu}
           onPressNextMenu={handleOpenMenuPicker}
           onPressPickCompareImage={pickCompareImageFromLibrary}
+          selectedMenuImageUri={selectedMenu?.imageUri}
           selectedMenuName={selectedMenu?.name}
         />
       ) : screen === 'capture' ? (

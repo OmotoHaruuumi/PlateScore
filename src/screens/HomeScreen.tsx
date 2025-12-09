@@ -1,12 +1,13 @@
 // src/screens/HomeScreen.tsx
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, Image } from 'react-native';
 
 type HomeScreenProps = {
     onPressStartCapture: () => void;
     onPressAddMenu: () => void;
     onPressNextMenu: () => void;
     onPressPickCompareImage: () => void;
+    selectedMenuImageUri?: string | null;
     selectedMenuName?: string;
 };
 
@@ -15,6 +16,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     onPressAddMenu,
     onPressNextMenu,
     onPressPickCompareImage,
+    selectedMenuImageUri,
     selectedMenuName,
 }) => {
     return (
@@ -27,6 +29,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <Text style={styles.menuLabel}>
                     選択中メニュー：{selectedMenuName ?? "（未選択）"}
                 </Text>
+
+                {selectedMenuImageUri ? (
+                  <Image
+                    source={{ uri: selectedMenuImageUri }}
+                    style={styles.menuThumbnail}
+                  />
+                ) : (
+                  <Text style={styles.menuPlaceholder}>
+                    お手本画像がまだ登録されていません
+                  </Text>
+                )}
             </View>
 
             <View style={styles.buttonRow}>
@@ -83,6 +96,18 @@ const styles = StyleSheet.create({
   menuLabel: {
     fontSize: 14,
     marginBottom: 8,
+  },
+   menuThumbnail: {
+    width: 120,        // 小さめの正方形
+    aspectRatio: 1,
+    borderRadius: 8,
+    backgroundColor: '#eee',
+    marginBottom: 12,
+  },
+  menuPlaceholder: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 12,
   },
   buttonRow: {
     flexDirection: 'row',
