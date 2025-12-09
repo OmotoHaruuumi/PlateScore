@@ -1,6 +1,7 @@
 // src/screens/CaptureScreen.tsx
 import React, {useRef} from 'react';
-import { View, Text, Button, StyleSheet, Image , Dimensions} from 'react-native';
+import { View, Text, StyleSheet, Image , Dimensions } from 'react-native';
+import { ActionButton } from '../ui/ActionButton';
 import {CameraView, useCameraPermissions} from  'expo-camera'
 
 
@@ -64,9 +65,9 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
                 <Text style={styles.permissionText}>
                     カメラを使うには権限が必要です
                 </Text>
-                <Button title="カメラ権限を許可する" onPress={requestPermission} />
+                <ActionButton title="カメラ権限を許可する" onPress={requestPermission} />
                 <View style = {{height:16}}/>
-                <Button title="ホームに戻る" onPress={onPressBack} />
+                <ActionButton title="ホームに戻る" onPress={onPressBack} />
                 </View>
         );
     }
@@ -86,13 +87,13 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
                         height: height, // 画面の高さ
                         opacity: 0.2, 
                     }}
-                    resizeMode = "cover"
+                    resizeMode = "contain"
                 />
             )}
 
 
             <View style={styles.overlayTop}>
-                <Button title="ホームに戻る" onPress={onPressBack} />
+                <ActionButton title="ホームに戻る" onPress={onPressBack} style={{width:120}} />
             </View>
 
             <View style={styles.overlayBottom}>
@@ -102,17 +103,17 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
 
                 <View style={styles.menuButtonRow}>
                     <View style={styles.menuButtonWrapper}>
-                        <Button title='新規メニュー登録' onPress={onPressAddMenu}/>
+                        <ActionButton title='新規メニュー登録' onPress={onPressAddMenu} />
                     </View>
                     <View style={styles.menuButtonWrapper}>
-                        <Button title='メニュー切り替え' onPress={onPressNextMenu}/>
+                        <ActionButton title='メニュー切り替え' onPress={onPressNextMenu} />
                     </View>
                 </View>
             <View style={{ marginTop: 16 }}>
-                <Button title="シャッター" onPress={handlePressShutter} />
+                <ActionButton title="シャッター" variant="primary" onPress={handlePressShutter} />
             </View>
                 <View style={{marginTop:50}}>
-                    <Button
+                    <ActionButton
                         title = "手持ちの画像と比較"
                         onPress = {onPressPickCompareImage}
                     />

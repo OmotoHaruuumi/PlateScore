@@ -1,6 +1,7 @@
 // src/screens/HomeScreen.tsx
 import React from 'react';
-import { View, Text, Button, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { ActionButton } from '../ui/ActionButton';
 
 type HomeScreenProps = {
     onPressStartCapture: () => void;
@@ -43,20 +44,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </View>
 
             <View style={styles.buttonRow}>
-                <View style={styles.buttonWrapper}>
-                    <Button title="新規メニュー登録" onPress={onPressAddMenu}/>
-                </View>
-                 <View style={styles.buttonWrapper}>
-                    <Button title="メニュー切り替え" onPress={onPressNextMenu}/>
-                </View>
+              <View style={styles.buttonWrapper}>
+                <ActionButton title="新規メニュー登録" onPress={onPressAddMenu} />
+              </View>
+               <View style={styles.buttonWrapper}>
+                <ActionButton title="メニュー切り替え" onPress={onPressNextMenu} />
+              </View>
             </View>
 
             <View style={styles.section}>
                 <View style={styles.startButtonWrapper}>
-                    <Button title="撮影スタート" onPress={onPressStartCapture} />
+                    <ActionButton title="撮影スタート" variant="primary" onPress={onPressStartCapture} />
                 </View>
                 <View style={styles.startButtonWrapper}>
-                  <Button
+                  <ActionButton
                     title="手持ちの画像と比較"
                     onPress={onPressPickCompareImage}
                     />
