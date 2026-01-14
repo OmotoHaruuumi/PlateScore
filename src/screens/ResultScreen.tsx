@@ -1,10 +1,13 @@
 // src/screens/ResultScreen.tsx
 import React, {useEffect, useState} from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import { usePlateScore } from '../features/evaluation/hooks/usePlateScore';
+import { HomeBackButton } from '../ui/HomeBackButton';
+import { ActionButton } from '../ui/ActionButton';
 
 
 type ResultScreenProps = {
+  onPressBackToHome: () => void;
   onPressBackToCapture: () => void;
   templateImageUri: string | null;
   capturedImageUri: string | null;
@@ -14,6 +17,7 @@ type ResultScreenProps = {
 };
 
 export const ResultScreen: React.FC<ResultScreenProps> = ({
+  onPressBackToHome,
   onPressBackToCapture,
   templateImageUri,
   capturedImageUri, 
@@ -28,10 +32,18 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     croppedTemplateUri,
     croppedCompareUri,
   } = usePlateScore(templateImageUri, capturedImageUri);
+  const guidanceText = !templateImageUri
+    ? 'お手本画像を追加してください'
+    : !capturedImageUri
+      ? '比較画像を追加してください'
+      : null;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>撮影結果</Text>
+      <View style={styles.topLeftButton}>
+        <HomeBackButton onPress={onPressBackToHome} />
+      </View>
+      <Text style={styles.title}>採点結果</Text>
 
       <View style={styles.row}>
         <View style={styles.imageBlock}>
@@ -54,33 +66,40 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
       </View>
 
       <View style={styles.scoreBlock}>
-        <Text style={styles.scoreTitle}>???</Text>
+        <Text style={styles.scoreTitle}>得点</Text>
         {loading ? (
           <Text style={styles.scoreValue}>???...</Text>
         ) : (
-          <Text style={styles.scoreValue}>{score ?? '-'} ?</Text>
+          <Text style={styles.scoreValue}>{score ?? '？点'} </Text>
         )}
         <Text style={styles.scoreNote}>
-          {error ? error : 'Error: スコア計算を確認してください'}
+          {error ? error : guidanceText ? guidanceText : 'Error: スコア計算を確認してください'}
         </Text>
       </View>
 
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.actionButton} onPress={onPressAddMenu}>
-          <Text style={styles.actionButtonText}>お手本を追加する</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton} onPress={onPressChangeTemplate}>
-          <Text style={styles.actionButtonText}>お手本を変更する（ライブラリ）</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton} onPress={onPressChangeCapturedFromLibrary}>
-          <Text style={styles.actionButtonText}>比較画像を変更する（ライブラリ）</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.actionButton, styles.primaryButton]} onPress={onPressBackToCapture}>
-          <Text style={[styles.actionButtonText, styles.primaryButtonText]}>カメラで撮影する</Text>
-        </TouchableOpacity>
+        <Text style={styles.SettingTitle}>{'画像を変更する'}</Text>
+        <ActionButton
+          title={'お手本を追加する'}
+          onPress={onPressAddMenu}
+          style={styles.actionSpacing}
+        />
+        <ActionButton
+          title={'お手本を変更する'}
+          onPress={onPressChangeTemplate}
+          style={styles.actionSpacing}
+        />
+        <ActionButton
+          title={'比較画像を変更する'}
+          onPress={onPressChangeCapturedFromLibrary}
+          style={styles.actionSpacing}
+        />
+        <ActionButton
+          title={'カメラで撮影する'}
+          variant="primary"
+          onPress={onPressBackToCapture}
+          style={styles.actionSpacingLast}
+        />
       </View>
     </ScrollView>
   );
@@ -92,15 +111,21 @@ const styles = StyleSheet.create({
     paddingTop: 100,
     paddingBottom: 100,
   },
+  topLeftButton: {
+    position: 'absolute',
+    top: 24,
+    left: 16,
+    zIndex: 10,
+  },
   title: {
-    fontSize: 22,
+    fontSize: 46,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 60,
     textAlign: 'center',
   },
   row: {
     flexDirection: 'row',
-    marginBottom: 24,
+    marginBottom: 60,
   },
   imageBlock: {
     flex: 1,
@@ -123,22 +148,28 @@ const styles = StyleSheet.create({
   },
   scoreBlock: {
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 60,
   },
   scoreTitle: {
-    fontSize: 16,
+    fontSize: 32,
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: 16,
   },
   scoreValue: {
     fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 16,
   },
   scoreNote: {
-    fontSize: 12,
+    fontSize: 16,
     color: '#666',
     textAlign: 'center',
+  },
+  SettingTitle: {
+    fontSize: 32,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 16,
   },
   /* ボタン周りのスタイルを追加 */
   actions: {
@@ -146,24 +177,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginTop: 12,
   },
-  actionButton: {
-    width: '100%',
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    backgroundColor: '#f2f2f2',
-    marginBottom: 12,
-    alignItems: 'center',
+  actionSpacing: {
+    marginBottom: 16,
   },
-  actionButtonText: {
-    fontSize: 16,
-    color: '#111',
-  },
-  primaryButton: {
-    backgroundColor: '#2f95dc',
-  },
-  primaryButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+  actionSpacingLast: {
+    marginBottom: 0,
   },
 });

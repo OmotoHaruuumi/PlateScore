@@ -21,6 +21,7 @@ type MenuModalsProps = {
   isMenuPickerVisible: boolean;
   onSelectMenu: (menuId: string) => void;
   onCloseMenuPicker: () => void;
+  onDeleteMenu: (menuId: string) => void;
 };
 
 export const MenuModals: React.FC<MenuModalsProps> = ({
@@ -34,6 +35,7 @@ export const MenuModals: React.FC<MenuModalsProps> = ({
   isMenuPickerVisible,
   onSelectMenu,
   onCloseMenuPicker,
+  onDeleteMenu,
 }) => {
   return (
     <>
@@ -82,16 +84,24 @@ export const MenuModals: React.FC<MenuModalsProps> = ({
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>メニューを選択</Text>
             {menus.map((menu) => (
-              <TouchableOpacity
-                key={menu.id}
-                style={styles.menuItem}
-                onPress={() => onSelectMenu(menu.id)}
-              >
-                <Text style={styles.menuItemText}>
-                  {menu.name}
-                  {menu.id === selectedMenuId ? '（選択中）' : ''}
-                </Text>
-              </TouchableOpacity>
+              <View key={menu.id} style={styles.menuRow}>
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={() => onSelectMenu(menu.id)}
+                >
+                  <Text style={styles.menuItemText}>
+                    {menu.name}
+                    {menu.id === selectedMenuId ? ' (selected)' : ''}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.menuDeleteButton}
+                  onPress={() => onDeleteMenu(menu.id)}
+                  accessibilityLabel="Delete menu"
+                >
+                  <Text style={styles.menuDeleteText}>DEL</Text>
+                </TouchableOpacity>
+              </View>
             ))}
 
             <TouchableOpacity
@@ -156,10 +166,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  menuRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   menuItem: {
+    flex: 1,
     paddingVertical: 8,
   },
   menuItemText: {
+    fontSize: 16,
+  },
+  menuDeleteButton: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  menuDeleteText: {
     fontSize: 16,
   },
 });

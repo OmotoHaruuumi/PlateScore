@@ -11,9 +11,9 @@ export function usePlateScore(templateUri: string | null, compareUri: string | n
     const [croppedCompareUri, setCroppedCompareUri] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!templateUri || !compareUri){
+        if (!compareUri){
             setScore(null);
-            setCroppedTemplateUri(null);
+            setCroppedTemplateUri(templateUri);
             setCroppedCompareUri(null);
             return;
         }
@@ -30,8 +30,12 @@ export function usePlateScore(templateUri: string | null, compareUri: string | n
                 setCroppedCompareUri(compareResult.croppedImageUri);
 
                 //将来はここにヒストグラムやCNNの処理を入れる
-                const apiScore = await fetchPlateScore(templateUri, compareResult.croppedImageUri);
-                setScore(apiScore);
+                if (templateUri) {
+                    const apiScore = await fetchPlateScore(templateUri, compareResult.croppedImageUri);
+                    setScore(apiScore);
+                } else {
+                    setScore(null);
+                }
             }   catch (e) {
                 console.warn(e);
                 setError('スコア計算に失敗しました');

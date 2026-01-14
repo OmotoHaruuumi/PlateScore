@@ -93,6 +93,31 @@ export function useMenuManager() {
     setIsMenuPickerVisible(false);
   };
 
+  const handleDeleteMenu = (menuId: string) => {
+    const target = menus.find((menu) => menu.id === menuId);
+    if (!target) return;
+
+    Alert.alert(
+      'このメニューを削除しますか?',
+      `「${target.name}」を削除しますか？`,
+      [
+        { text: 'キャンセル', style: 'cancel' },
+        {
+          text: '削除',
+          style: 'destructive',
+          onPress: () => {
+            setMenus((prev) => prev.filter((menu) => menu.id !== menuId));
+            setSelectedMenuId((prev) => {
+              if (prev !== menuId) return prev;
+              const remaining = menus.filter((menu) => menu.id !== menuId);
+              return remaining[0]?.id ?? null;
+            });
+          },
+        },
+      ]
+    );
+  };
+
   return {
     menus,
     selectedMenu,
@@ -107,5 +132,6 @@ export function useMenuManager() {
     handleCancelAddMenu,
     handleOpenMenuPicker,
     handleSelectMenu,
+    handleDeleteMenu,
   };
 }

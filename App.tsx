@@ -25,6 +25,7 @@ export default function App() {
     handleCancelAddMenu,
     handleOpenMenuPicker,
     handleSelectMenu,
+    handleDeleteMenu,
   } = useMenuManager();
 
   const {
@@ -63,6 +64,7 @@ export default function App() {
         />
       ) : (
         <ResultScreen
+        onPressBackToHome={goHome}
         onPressBackToCapture={goCapture}
         templateImageUri={selectedMenu?.imageUri ?? null}
         capturedImageUri={capturedImageUri}
@@ -85,6 +87,7 @@ export default function App() {
         isMenuPickerVisible={isMenuPickerVisible}
         onSelectMenu={handleSelectMenu}
         onCloseMenuPicker={() => setIsMenuPickerVisible(false)}
+        onDeleteMenu={handleDeleteMenu}
       />
     </SafeAreaView>
   );
