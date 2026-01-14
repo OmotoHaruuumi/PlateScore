@@ -29,9 +29,13 @@ export function useComparisonFlow() {
   };
 
   // --- カメラ撮影後に呼ぶ処理 ---
-  const handleCapturedFromCamera = (uri: string) => {
+  const handleCapturedFromCamera = (uri: string, navigateToResult: boolean = true) => {
     setCapturedImageUri(uri);
-    goResult();
+    if (navigateToResult) {
+      goResult();
+    } else {
+      setScreen('home');
+    }
   };
 
   // --- ライブラリから比較用画像を選んで Result に行く処理 ---

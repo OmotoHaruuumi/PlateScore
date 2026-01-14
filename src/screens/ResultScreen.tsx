@@ -1,7 +1,6 @@
 // src/screens/ResultScreen.tsx
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
-import { usePlateScore } from '../features/evaluation/hooks/usePlateScore';
 import { HomeBackButton } from '../ui/HomeBackButton';
 import { ActionButton } from '../ui/ActionButton';
 
@@ -14,6 +13,11 @@ type ResultScreenProps = {
   onPressAddMenu: () => void;
   onPressChangeTemplate: () => void; 
   onPressChangeCapturedFromLibrary: () => void; 
+  croppedTemplateUri: string | null;
+  croppedCompareUri: string | null;
+  score: number | null;
+  loading: boolean;
+  error: string | null;
 };
 
 export const ResultScreen: React.FC<ResultScreenProps> = ({
@@ -24,14 +28,12 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   onPressAddMenu,
   onPressChangeTemplate,
   onPressChangeCapturedFromLibrary,
+  croppedTemplateUri,
+  croppedCompareUri,
+  score,
+  loading,
+  error,
 }) => {
-  const {
-    score,
-    loading,
-    error,
-    croppedTemplateUri,
-    croppedCompareUri,
-  } = usePlateScore(templateImageUri, capturedImageUri);
   const guidanceText = !templateImageUri
     ? 'お手本画像を追加してください'
     : !capturedImageUri

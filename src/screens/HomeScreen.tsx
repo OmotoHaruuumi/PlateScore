@@ -10,6 +10,10 @@ type HomeScreenProps = {
     onPressPickCompareImage: () => void;
     selectedMenuImageUri?: string | null;
     selectedMenuName?: string;
+    selectedCompareImageUri?: string | null;
+    currentScore?: number | null;
+    scoreLoading?: boolean;
+    scoreError?: string | null;
 };
 
 const BASE_WIDTH = 375;
@@ -22,6 +26,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     onPressPickCompareImage,
     selectedMenuImageUri,
     selectedMenuName,
+    selectedCompareImageUri,
+    currentScore,
+    scoreLoading,
+    scoreError,
 }) => {
     const { width: screenWidth, height: screenHeight } = useWindowDimensions();
     const scale = Math.min(screenWidth / BASE_WIDTH, screenHeight / BASE_HEIGHT);
@@ -33,6 +41,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
     const buttonStyle = { paddingVertical: buttonPadding, marginBottom: spacingSm };
     const buttonStyleLast = { paddingVertical: buttonPadding, marginBottom: 0 };
+
+    const scoreLabel = scoreLoading
+        ? '計算中...'
+        : currentScore !== null && currentScore !== undefined
+            ? `${currentScore}`
+            : '？点';
+    const scoreNote =
+        scoreError ??
+        ('スコアはまだ計算されていません');
 
     return (
         <View style={styles.container}>
@@ -47,7 +64,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 >
                     <View style={[styles.section, { marginBottom: spacingMd }]}
                     >
-                        <Text style={styles.sectionTitle}>メニュー</Text>
+                        <Text style={styles.sectionTitle}>現在の得点</Text>
+                        <Text style={styles.scoreValue}>{scoreLabel}</Text>
+                        <Text style={styles.scoreNote}>{scoreNote}</Text>
+                    </View>
+
+                    <View style={[styles.section, { marginBottom: spacingMd }]}>
+                        <Text style={styles.sectionTitle}>お手本メニュー</Text>
                         <Text style={styles.menuLabel}>
                             選択中のお手本メニュー：{selectedMenuName ?? '未選択'}
                         </Text>
@@ -82,6 +105,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     </View>
 
                     <View style={[styles.section, { marginBottom: 0 }]}>
+                        <Text style={styles.sectionTitle}>比較画像</Text>
+                        {selectedCompareImageUri ? (
+                            <Image
+                                source={{ uri: selectedCompareImageUri }}
+                                style={styles.menuThumbnail}
+                            />
+                        ) : (
+                            <Text style={styles.menuPlaceholder}>
+                                比較画像がまだ登録されていません
+                            </Text>
+                        )}
                         <View style={{ marginTop: spacingSm }}>
                             <ActionButton
                                 title="撮影スタート"
@@ -115,7 +149,8 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
-        justifyContent: 'center',
+        paddingTop: 30,
+        paddingBottom: 30,
     },
     scaleStage: {
         width: BASE_WIDTH,
@@ -155,6 +190,15 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#666',
         marginBottom: 12,
+    },
+    scoreValue: {
+        fontSize: 20,
+        fontWeight: '700',
+        marginBottom: 6,
+    },
+    scoreNote: {
+        fontSize: 12,
+        color: '#666',
     },
     buttonRow: {
         flexDirection: 'row',

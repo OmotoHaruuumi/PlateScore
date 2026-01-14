@@ -3,7 +3,11 @@ import {useEffect, useState} from 'react';
 import { plateEvaluator } from '../services/PlateEvaluatorService';
 import { fetchPlateScore } from '../services/ScoreApiService';
 
-export function usePlateScore(templateUri: string | null, compareUri: string | null){
+export function usePlateScore(
+    templateUri: string | null,
+    compareUri: string | null,
+    enabled: boolean = true,
+){
     const [score, setScore] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -11,6 +15,10 @@ export function usePlateScore(templateUri: string | null, compareUri: string | n
     const [croppedCompareUri, setCroppedCompareUri] = useState<string | null>(null);
 
     useEffect(() => {
+        if (!enabled) {
+            return;
+        }
+
         if (!compareUri){
             setScore(null);
             setCroppedTemplateUri(templateUri);
@@ -46,7 +54,7 @@ export function usePlateScore(templateUri: string | null, compareUri: string | n
         };
         
         run();
-    }, [templateUri, compareUri]);
+    }, [templateUri, compareUri, enabled]);
     
     return {
         score,

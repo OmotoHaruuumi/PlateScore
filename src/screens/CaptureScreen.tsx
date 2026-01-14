@@ -84,6 +84,7 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
                         width: width,
                         height: height,
                         opacity: 0.2,
+                        transform: [{ translateY: -50 }],
                     }}
                     resizeMode="contain"
                 />
@@ -125,9 +126,15 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
             )}
 
             <View style={styles.overlayBottom}>
-                <View style={{ marginTop: 16 }}>
-                    <ActionButton title="シャッター" variant="primary" onPress={handlePressShutter} />
-                </View>
+                <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel="シャッター"
+                    activeOpacity={0.85}
+                    style={styles.shutterButton}
+                    onPress={handlePressShutter}
+                >
+                    <View style={styles.shutterInner} />
+                </TouchableOpacity>
                 <Text style={styles.helpText}>
                     器を中央に合わせてください
                 </Text>
@@ -209,10 +216,27 @@ const styles = StyleSheet.create({
   },
   overlayBottom: {
     position: 'absolute',
-    bottom: 100,
-    left: 16,
-    right: 16,
+    bottom: 36,
+    left: 0,
+    right: 0,
     alignItems: 'center',
+  },
+  shutterButton: {
+    width: 78,
+    height: 78,
+    borderRadius: 39,
+    borderWidth: 4,
+    borderColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    marginBottom: 16,
+  },
+  shutterInner: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#fff',
   },
   helpText: {
     color: 'white',
