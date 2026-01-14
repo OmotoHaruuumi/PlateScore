@@ -1,6 +1,7 @@
 // src/features/evaluation/hooks/usePlateScore.ts
 import {useEffect, useState} from 'react';
 import { plateEvaluator } from '../services/PlateEvaluatorService';
+import { fetchPlateScore } from '../services/ScoreApiService';
 
 export function usePlateScore(templateUri: string | null, compareUri: string | null){
     const [score, setScore] = useState<number | null>(null);
@@ -29,8 +30,8 @@ export function usePlateScore(templateUri: string | null, compareUri: string | n
                 setCroppedCompareUri(compareResult.croppedImageUri);
 
                 //将来はここにヒストグラムやCNNの処理を入れる
-                const dummyScore = 100;
-                setScore(dummyScore);
+                const apiScore = await fetchPlateScore(templateUri, compareResult.croppedImageUri);
+                setScore(apiScore);
             }   catch (e) {
                 console.warn(e);
                 setError('スコア計算に失敗しました');

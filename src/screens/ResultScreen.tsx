@@ -54,10 +54,14 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
       </View>
 
       <View style={styles.scoreBlock}>
-        <Text style={styles.scoreTitle}>暫定スコア（ダミー）</Text>
-        <Text style={styles.scoreValue}>{score ?? '-'} 点</Text>
+        <Text style={styles.scoreTitle}>???</Text>
+        {loading ? (
+          <Text style={styles.scoreValue}>???...</Text>
+        ) : (
+          <Text style={styles.scoreValue}>{score ?? '-'} ?</Text>
+        )}
         <Text style={styles.scoreNote}>
-          ここに将来、ヒストグラムやCNNによるスコアを表示します。
+          {error ? error : 'Error: スコア計算を確認してください'}
         </Text>
       </View>
 
