@@ -1,6 +1,7 @@
 ﻿// src/screens/HomeScreen.tsx
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Image, useWindowDimensions, Modal, TouchableOpacity, Animated, Easing } from 'react-native';
+import { View, Text, StyleSheet, Image, useWindowDimensions, Modal, TouchableOpacity, Animated, Easing, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActionButton } from '../ui/ActionButton';
 
 type HomeScreenProps = {
@@ -34,10 +35,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     onPressStartScoring,
 }) => {
     const [previewUri, setPreviewUri] = useState<string | null>(null);
+    const insets = useSafeAreaInsets();
     const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+    const outerPadding = 8;
+    const availableWidth = Math.max(0, screenWidth - outerPadding * 2);
     const pulseAnim = useRef(new Animated.Value(1)).current;
     const pulseLoopRef = useRef<Animated.CompositeAnimation | null>(null);
-    const scale = Math.min(screenWidth / BASE_WIDTH, screenHeight / BASE_HEIGHT);
+    const scale = Math.min(availableWidth / BASE_WIDTH, screenHeight / BASE_HEIGHT);
     const spacingSm = Math.max(8, Math.round(10 * scale));
     const contentPadding = Math.max(16, Math.round(20 * scale));
     const spacingMd = Math.max(12, Math.round(16 * scale));
@@ -93,10 +97,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <Text style={[styles.subtitle, { marginBottom: spacingLg }]}>メニューと実物を比較するアプリ</Text>
             </View>
 
-            <View style={styles.content}
+            <ScrollView
+                style={styles.content}
+                contentContainerStyle={[
+                    styles.contentInner,
+                    { paddingBottom: 30 + insets.bottom + spacingLg },
+                    { paddingHorizontal: outerPadding },
+                ]}
+                showsVerticalScrollIndicator={false}
             >
-                <View style={[styles.scaleStage, { transform: [{ scale }] }, { paddingHorizontal: contentPadding }]}
-                >
+                <View style={[styles.scaleStage, { transform: [{ scale }] }, { paddingHorizontal: contentPadding }]}>
                     <View style={[styles.section, { marginBottom: spacingMd }]}
                     >
                         <Text style={styles.sectionTitle}>現在の得点</Text>
@@ -196,7 +206,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         </View>
                     </View>
                 </View>
-            </View>
+            </ScrollView>
 
             <Modal
                 visible={Boolean(previewUri)}
@@ -233,8 +243,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 24,
-        paddingTop: 24,
+        paddingHorizontal: 20,
+        paddingTop: 20,
+        paddingBottom: 10,
     },
     header: {
         alignItems: 'flex-start',
@@ -244,12 +255,15 @@ const styles = StyleSheet.create({
         paddingTop: 30,
         paddingBottom: 30,
     },
+    contentInner: {
+        paddingTop: 30,
+    },
     scaleStage: {
         width: BASE_WIDTH,
         alignSelf: 'center',
     },
     title: {
-        fontSize: 24,
+        fontSize: 18,
         fontWeight: 'bold',
         textAlign: 'left',
         marginBottom: 8,
@@ -260,7 +274,7 @@ const styles = StyleSheet.create({
         textAlign: 'left',
     },
     section: {
-        marginBottom: 24,
+        marginBottom: 10,
     },
     sectionTitle: {
         fontSize: 18,
@@ -291,9 +305,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 6,
+        marginBottom: 0,
         alignSelf: 'center',
-        width: '80%',
+        width: '90%',
         maxWidth: 260,
     },
     scoreActionWrapper: {
