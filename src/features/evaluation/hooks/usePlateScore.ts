@@ -26,6 +26,11 @@ export function usePlateScore(
             return;
         }
 
+        setCroppedTemplateUri(templateUri);
+        setCroppedCompareUri(compareUri);
+        setScore(null);
+
+        let cancelled = false;
         const run = async () => {
             setLoading(true);
             setError(null);
@@ -34,6 +39,9 @@ export function usePlateScore(
                 const compareResult = await plateEvaluator.detectAndCropPlate(compareUri);
 
                 // 今はお手本側はそのまま使う（将来ここも detectAndCropPlate してもOK）
+                if (cancelled) {
+                    return;
+                }
                 setCroppedTemplateUri(templateUri);
                 setCroppedCompareUri(compareResult.croppedImageUri);
 
@@ -45,15 +53,23 @@ export function usePlateScore(
                     setScore(null);
                 }
             }   catch (e) {
+                if (cancelled) {
+                    return;
+                }
                 console.warn(e);
                 setError('スコア計算に失敗しました');
                 setScore(null);
             }   finally {
-                setLoading(false);
+                if (!cancelled) {
+                    setLoading(false);
+                }
             }
         };
         
         run();
+        return () => {
+            cancelled = true;
+        };
     }, [templateUri, compareUri, enabled]);
     
     return {

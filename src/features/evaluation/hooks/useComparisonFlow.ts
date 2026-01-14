@@ -60,7 +60,7 @@ export function useComparisonFlow() {
 
     const asset = result.assets[0];
     setCapturedImageUri(asset.uri);
-    goResult();
+    setScreen('home');
   };
 
   return {

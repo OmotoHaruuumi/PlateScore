@@ -1,6 +1,6 @@
 // src/screens/ResultScreen.tsx
-import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, Modal, TouchableOpacity } from 'react-native';
 import { HomeBackButton } from '../ui/HomeBackButton';
 import { ActionButton } from '../ui/ActionButton';
 
@@ -34,6 +34,8 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   loading,
   error,
 }) => {
+  const [previewUri, setPreviewUri] = useState<string | null>(null);
+
   const guidanceText = !templateImageUri
     ? 'お手本画像を追加してください'
     : !capturedImageUri
@@ -51,7 +53,12 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         <View style={styles.imageBlock}>
           <Text style={styles.label}>お手本</Text>
           {croppedTemplateUri ? (
-            <Image source={{ uri: croppedTemplateUri }} style={styles.image} />
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={() => setPreviewUri(croppedTemplateUri)}
+            >
+              <Image source={{ uri: croppedTemplateUri }} style={styles.image} />
+            </TouchableOpacity>
           ) : (
             <Text style={styles.placeholder}>メニューが選択されていません</Text>
           )}
@@ -60,7 +67,12 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         <View style={styles.imageBlock}>
           <Text style={styles.label}>比較対象</Text>
           {croppedCompareUri ? (
-            <Image source={{ uri: croppedCompareUri }} style={styles.image} />
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={() => setPreviewUri(croppedCompareUri)}
+            >
+              <Image source={{ uri: croppedCompareUri }} style={styles.image} />
+            </TouchableOpacity>
           ) : (
             <Text style={styles.placeholder}>画像がありません</Text>
           )}
@@ -70,7 +82,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
       <View style={styles.scoreBlock}>
         <Text style={styles.scoreTitle}>得点</Text>
         {loading ? (
-          <Text style={styles.scoreValue}>???...</Text>
+          <Text style={styles.scoreValue}>採点中です...</Text>
         ) : (
           <Text style={styles.scoreValue}>{score ?? '？点'} </Text>
         )}
@@ -103,6 +115,35 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
           style={styles.actionSpacingLast}
         />
       </View>
+
+      <Modal
+        visible={Boolean(previewUri)}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPreviewUri(null)}
+      >
+        <View style={styles.previewBackdrop}>
+          <TouchableOpacity
+            style={styles.previewCloseArea}
+            activeOpacity={1}
+            onPress={() => setPreviewUri(null)}
+          />
+          {previewUri && (
+            <Image
+              source={{ uri: previewUri }}
+              style={styles.previewImage}
+              resizeMode="contain"
+            />
+          )}
+          <TouchableOpacity
+            style={styles.previewCloseButton}
+            onPress={() => setPreviewUri(null)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.previewCloseText}>閉じる</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -172,6 +213,35 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 16,
+  },
+  previewBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewCloseArea: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  previewImage: {
+    width: '92%',
+    height: '92%',
+  },
+  previewCloseButton: {
+    position: 'absolute',
+    bottom: 40,
+    alignSelf: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  previewCloseText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   /* ボタン周りのスタイルを追加 */
   actions: {

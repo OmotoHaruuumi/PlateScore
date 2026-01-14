@@ -1,6 +1,6 @@
 ﻿// src/screens/HomeScreen.tsx
-import React from 'react';
-import { View, Text, StyleSheet, Image, useWindowDimensions } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Image, useWindowDimensions, Modal, TouchableOpacity, Animated, Easing } from 'react-native';
 import { ActionButton } from '../ui/ActionButton';
 
 type HomeScreenProps = {
@@ -14,6 +14,7 @@ type HomeScreenProps = {
     currentScore?: number | null;
     scoreLoading?: boolean;
     scoreError?: string | null;
+    onPressStartScoring?: () => void;
 };
 
 const BASE_WIDTH = 375;
@@ -30,8 +31,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     currentScore,
     scoreLoading,
     scoreError,
+    onPressStartScoring,
 }) => {
+    const [previewUri, setPreviewUri] = useState<string | null>(null);
     const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+    const pulseLoopRef = useRef<Animated.CompositeAnimation | null>(null);
     const scale = Math.min(screenWidth / BASE_WIDTH, screenHeight / BASE_HEIGHT);
     const spacingSm = Math.max(8, Math.round(10 * scale));
     const contentPadding = Math.max(16, Math.round(20 * scale));
@@ -50,6 +55,36 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     const scoreNote =
         scoreError ??
         ('スコアはまだ計算されていません');
+    const canScore = Boolean(selectedMenuImageUri && selectedCompareImageUri);
+    const showScoreButton = canScore && Boolean(onPressStartScoring);
+
+    useEffect(() => {
+        if (!showScoreButton) {
+            pulseLoopRef.current?.stop();
+            pulseLoopRef.current = null;
+            pulseAnim.setValue(1);
+            return;
+        }
+        pulseLoopRef.current?.stop();
+        pulseLoopRef.current = Animated.loop(
+            Animated.sequence([
+                Animated.timing(pulseAnim, {
+                    toValue: 1.06,
+                    duration: 800,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(pulseAnim, {
+                    toValue: 1,
+                    duration: 800,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+            ])
+        );
+        pulseLoopRef.current.start();
+        return () => pulseLoopRef.current?.stop();
+    }, [pulseAnim, showScoreButton]);
 
     return (
         <View style={styles.container}>
@@ -65,7 +100,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     <View style={[styles.section, { marginBottom: spacingMd }]}
                     >
                         <Text style={styles.sectionTitle}>現在の得点</Text>
-                        <Text style={styles.scoreValue}>{scoreLabel}</Text>
+                        <View style={styles.scoreRow}>
+                            <Text style={styles.scoreValue}>{scoreLabel}</Text>
+                            {showScoreButton && (
+                                <TouchableOpacity
+                                    activeOpacity={0.9}
+                                    onPress={onPressStartScoring}
+                                    style={styles.scoreActionWrapper}
+                                >
+                                    <Animated.View
+                                        style={[
+                                            styles.scoreAction,
+                                            { transform: [{ scale: pulseAnim }] },
+                                        ]}
+                                    >
+                                        <Text style={styles.scoreActionText}>採点</Text>
+                                    </Animated.View>
+                                </TouchableOpacity>
+                            )}
+                        </View>
                         <Text style={styles.scoreNote}>{scoreNote}</Text>
                     </View>
 
@@ -76,10 +129,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         </Text>
 
                         {selectedMenuImageUri ? (
-                            <Image
-                                source={{ uri: selectedMenuImageUri }}
-                                style={styles.menuThumbnail}
-                            />
+                            <TouchableOpacity
+                                activeOpacity={0.85}
+                                onPress={() => setPreviewUri(selectedMenuImageUri)}
+                            >
+                                <Image
+                                    source={{ uri: selectedMenuImageUri }}
+                                    style={styles.menuThumbnail}
+                                />
+                            </TouchableOpacity>
                         ) : (
                             <Text style={styles.menuPlaceholder}>
                                 お手本画像がまだ登録されていません
@@ -107,10 +165,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     <View style={[styles.section, { marginBottom: 0 }]}>
                         <Text style={styles.sectionTitle}>比較画像</Text>
                         {selectedCompareImageUri ? (
-                            <Image
-                                source={{ uri: selectedCompareImageUri }}
-                                style={styles.menuThumbnail}
-                            />
+                            <TouchableOpacity
+                                activeOpacity={0.85}
+                                onPress={() => setPreviewUri(selectedCompareImageUri)}
+                            >
+                                <Image
+                                    source={{ uri: selectedCompareImageUri }}
+                                    style={styles.menuThumbnail}
+                                />
+                            </TouchableOpacity>
                         ) : (
                             <Text style={styles.menuPlaceholder}>
                                 比較画像がまだ登録されていません
@@ -134,6 +197,35 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     </View>
                 </View>
             </View>
+
+            <Modal
+                visible={Boolean(previewUri)}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setPreviewUri(null)}
+            >
+                <View style={styles.previewBackdrop}>
+                    <TouchableOpacity
+                        style={styles.previewCloseArea}
+                        activeOpacity={1}
+                        onPress={() => setPreviewUri(null)}
+                    />
+                    {previewUri && (
+                        <Image
+                            source={{ uri: previewUri }}
+                            style={styles.previewImage}
+                            resizeMode="contain"
+                        />
+                    )}
+                    <TouchableOpacity
+                        style={styles.previewCloseButton}
+                        onPress={() => setPreviewUri(null)}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.previewCloseText}>閉じる</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -194,11 +286,70 @@ const styles = StyleSheet.create({
     scoreValue: {
         fontSize: 20,
         fontWeight: '700',
+    },
+    scoreRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         marginBottom: 6,
+        alignSelf: 'center',
+        width: '80%',
+        maxWidth: 260,
+    },
+    scoreActionWrapper: {
+        marginLeft: 12,
     },
     scoreNote: {
         fontSize: 12,
         color: '#666',
+    },
+    scoreAction: {
+        paddingHorizontal: 24,
+        paddingVertical: 14,
+        borderRadius: 999,
+        backgroundColor: '#ff5a3c',
+        borderWidth: 2,
+        borderColor: '#fff',
+        shadowColor: '#ff5a3c',
+        shadowOpacity: 0.4,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 6,
+    },
+    scoreActionText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '700',
+        letterSpacing: 1,
+    },
+    previewBackdrop: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    previewCloseArea: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    previewImage: {
+        width: '92%',
+        height: '92%',
+    },
+    previewCloseButton: {
+        position: 'absolute',
+        bottom: 40,
+        alignSelf: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 16,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.4)',
+    },
+    previewCloseText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '600',
     },
     buttonRow: {
         flexDirection: 'row',

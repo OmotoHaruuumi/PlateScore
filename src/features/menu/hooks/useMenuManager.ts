@@ -16,7 +16,7 @@ export function useMenuManager() {
   const selectedMenu = menus.find((m) => m.id === selectedMenuId) ?? null;
 
   // 新規メニュー登録（画像選択 → 名前入力モーダルを開く）
-  const handleAddMenu = async () => {
+  const handlePickImageFromLibrary = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert(
@@ -39,6 +39,36 @@ export function useMenuManager() {
     setPendingImageUri(asset.uri);
     setNewMenuName('');
     setIsNameModalVisible(true);
+  };
+
+  const handleCaptureImageFromCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('権限が必要です', 'カメラを使うには権限が必要です。');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (result.canceled) {
+      return;
+    }
+
+    const asset = result.assets[0];
+    setPendingImageUri(asset.uri);
+    setNewMenuName('');
+    setIsNameModalVisible(true);
+  };
+
+  const handleAddMenu = () => {
+    Alert.alert('画像の選択', '追加する画像を選んでください', [
+      { text: 'キャンセル', style: 'cancel' },
+      { text: 'ライブラリから選ぶ', onPress: handlePickImageFromLibrary },
+      { text: 'カメラで撮影', onPress: handleCaptureImageFromCamera },
+    ]);
   };
 
   // 名前入力モーダル「登録」

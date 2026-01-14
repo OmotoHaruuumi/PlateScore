@@ -1,6 +1,7 @@
 // app.tsx
 import React, { useEffect, useRef } from 'react';
-import { SafeAreaView, StatusBar, StyleSheet } from 'react-native';
+import { StatusBar, StyleSheet } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { CaptureScreen } from './src/screens/CaptureScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
@@ -49,9 +50,6 @@ export default function App() {
     screen === 'result',
   );
 
-  const prevCompleteRef = useRef(false);
-  const prevTemplateUriRef = useRef<string | null | undefined>(undefined);
-  const prevCompareUriRef = useRef<string | null>(null);
   const lastScoredTemplateUriRef = useRef<string | null>(null);
   const lastScoredCompareUriRef = useRef<string | null>(null);
 
@@ -76,50 +74,23 @@ export default function App() {
     capturedImageUri,
   ]);
 
-  useEffect(() => {
-    if (screen !== 'home') {
-      prevCompleteRef.current = Boolean(selectedMenu?.imageUri && capturedImageUri);
-      prevTemplateUriRef.current = selectedMenu?.imageUri;
-      prevCompareUriRef.current = capturedImageUri;
-      return;
-    }
-    const hasTemplate = Boolean(selectedMenu?.imageUri);
-    const hasCompare = Boolean(capturedImageUri);
-    const isComplete = hasTemplate && hasCompare;
-    const wasComplete = prevCompleteRef.current;
-    const prevTemplateUri = prevTemplateUriRef.current;
-    const prevCompareUri = prevCompareUriRef.current;
-    prevCompleteRef.current = isComplete;
-    prevTemplateUriRef.current = selectedMenu?.imageUri;
-    prevCompareUriRef.current = capturedImageUri;
-    if (!hasTemplate) {
-      return;
-    }
-    const templateChanged = hasCompare && prevTemplateUri !== selectedMenu?.imageUri;
-    const compareChanged = prevCompareUri !== capturedImageUri;
-    if (templateChanged && hasTemplate) {
-      goResult();
-      return;
-    }
-    if (compareChanged && hasCompare && hasTemplate) {
-      goResult();
-      return;
-    }
-    if (!wasComplete && isComplete) {
-      goResult();
-    }
-  }, [screen, selectedMenu?.imageUri, capturedImageUri, goResult]);
-
   const isScoreValid =
     Boolean(selectedMenu?.imageUri) &&
     Boolean(capturedImageUri) &&
     selectedMenu?.imageUri === lastScoredTemplateUriRef.current &&
     capturedImageUri === lastScoredCompareUriRef.current;
   const homeScore = isScoreValid ? score : null;
+  const safeAreaEdges = screen === 'capture'
+    ? ['left', 'right', 'bottom'] as const
+    : ['top', 'left', 'right', 'bottom'] as const;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <SafeAreaProvider>
+      <SafeAreaView
+        style={[styles.container, screen === 'capture' && styles.captureSafeArea]}
+        edges={safeAreaEdges}
+      >
+        <StatusBar barStyle="dark-content" />
 
       {screen === 'home' ? (
         <HomeScreen
@@ -133,6 +104,7 @@ export default function App() {
           currentScore={homeScore}
           scoreLoading={loading}
           scoreError={error}
+          onPressStartScoring={goResult}
         />
       ) : screen === 'capture' ? (
         <CaptureScreen
@@ -143,7 +115,7 @@ export default function App() {
           selectedMenuImageUri={selectedMenu?.imageUri}
           selectedMenuName={selectedMenu?.name}
           onCaptured={(uri) =>
-            handleCapturedFromCamera(uri, Boolean(selectedMenu?.imageUri))
+            handleCapturedFromCamera(uri, false)
           }
         />
       ) : (
@@ -165,7 +137,7 @@ export default function App() {
       }
 
       {/* メニュー関連のモーダルは専用コンポーネントに委譲 */}
-      <MenuModals
+        <MenuModals
         menus={menus}
         selectedMenuId={selectedMenuId}
         isNameModalVisible={isNameModalVisible}
@@ -177,13 +149,17 @@ export default function App() {
         onSelectMenu={handleSelectMenu}
         onCloseMenuPicker={() => setIsMenuPickerVisible(false)}
         onDeleteMenu={handleDeleteMenu}
-      />
-    </SafeAreaView>
+        />
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  captureSafeArea: {
+    backgroundColor: '#000',
   },
 });
