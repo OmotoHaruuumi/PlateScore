@@ -117,6 +117,8 @@ src/mocks/
   evaluation/
     sampleScores.json   # ダミースコア
 
+functions/
+  src/index.ts # Firebase Functionを使いGemini APIを呼び、{ score }を返す
 
 assets/
   images/
@@ -131,3 +133,4 @@ assets/
     miso_01.json
   fonts/
     NotoSansJP-Regular.ttf
+
