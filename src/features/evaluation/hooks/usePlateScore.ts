@@ -6,9 +6,11 @@ import { fetchPlateScore } from '../services/ScoreApiService';
 export function usePlateScore(
     templateUri: string | null,
     compareUri: string | null,
+    scoringCriteria: string | null,
     enabled: boolean = true,
 ){
     const [score, setScore] = useState<number | null>(null);
+    const [comment, setComment] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [croppedTemplateUri, setCroppedTemplateUri] = useState<string | null>(null);
@@ -21,6 +23,7 @@ export function usePlateScore(
 
         if (!compareUri){
             setScore(null);
+            setComment(null);
             setCroppedTemplateUri(templateUri);
             setCroppedCompareUri(null);
             return;
@@ -29,6 +32,7 @@ export function usePlateScore(
         setCroppedTemplateUri(templateUri);
         setCroppedCompareUri(compareUri);
         setScore(null);
+        setComment(null);
 
         let cancelled = false;
         const run = async () => {
@@ -47,10 +51,18 @@ export function usePlateScore(
 
                 //将来はここにヒストグラムやCNNの処理を入れる
                 if (templateUri) {
-                    const apiScore = await fetchPlateScore(templateUri, compareResult.croppedImageUri);
-                    setScore(apiScore);
+                    const normalizedCriteria = scoringCriteria?.trim() ? scoringCriteria.trim() : null;
+                    const apiResult = await fetchPlateScore(
+                        templateUri,
+                        compareResult.croppedImageUri,
+                        normalizedCriteria,
+                    );
+                    setScore(apiResult.score);
+                    setComment(apiResult.comment);
+                    console.log('Score API result:', apiResult);
                 } else {
                     setScore(null);
+                    setComment(null);
                 }
             }   catch (e) {
                 if (cancelled) {
@@ -59,6 +71,7 @@ export function usePlateScore(
                 console.warn(e);
                 setError('スコア計算に失敗しました');
                 setScore(null);
+                setComment(null);
             }   finally {
                 if (!cancelled) {
                     setLoading(false);
@@ -70,10 +83,11 @@ export function usePlateScore(
         return () => {
             cancelled = true;
         };
-    }, [templateUri, compareUri, enabled]);
+    }, [templateUri, compareUri, scoringCriteria, enabled]);
     
     return {
         score,
+        comment,
         loading,
         error,
         croppedTemplateUri,

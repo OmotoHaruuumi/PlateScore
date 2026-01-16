@@ -8,12 +8,15 @@ function parseScore(text: string) {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const obj = JSON.parse(jsonMatch[0]);
-      if (typeof obj.score === 'number') return obj.score;
+      if (typeof obj.score === 'number') {
+        const comment = typeof obj.comment === 'string' ? obj.comment : null;
+        return { score: obj.score, comment };
+      }
     }
   } catch {}
 
   const numMatch = text.match(/-?\d+(\.\d+)?/);
-  if (numMatch) return Number(numMatch[0]);
+  if (numMatch) return { score: Number(numMatch[0]), comment: null };
   return null;
 }
 
@@ -29,11 +32,15 @@ export const score = onRequest(
       return;
     }
 
-    const { templateBase64, compareBase64 } = req.body || {};
+    const { templateBase64, compareBase64, scoringCriteria } = req.body || {};
     if (!templateBase64 || !compareBase64) {
       res.status(400).json({ error: 'templateBase64 and compareBase64 are required' });
       return;
     }
+    const normalizedCriteria =
+      typeof scoringCriteria === 'string' && scoringCriteria.trim().length > 0
+        ? scoringCriteria.trim().slice(0, 20)
+        : null;
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
@@ -42,7 +49,7 @@ export const score = onRequest(
     }
     const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
-    const geminiRes = await fetch(
+   const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
@@ -51,7 +58,20 @@ export const score = onRequest(
           contents: [
             {
               parts: [
-                { text: 'Compare these two images and return ONLY JSON like {"score": 0-100}.' },
+                {
+                  text:
+                `Compare these two images. The first is the template, the second is the comparison target. ` +
+                `**Your Role**: You are a world-class professional chef and a very strict judge. Be highly critical and precise. ` +
+                `\n\n**SCORING TONE & RULES:** ` +
+                `1. **Be Strict**: Start from 100 and deduct points for every slight difference in placement, quantity, color, and texture. A score of 100 should be extremely rare. ` +
+                `2. **Mandatory Comment**: Always provide a "comment" in Japanese. Never leave it empty. ` +
+                `3. **Zero Tolerance**: If the images show completely different items, you MUST return: {"score": 0, "comment": "同じメニューにしてください"}. ` +
+                `4. **Constructive Criticism**: Even if the score is 80+, find something to nitpick. If the score is low, be very direct about what is wrong. ` +
+                (normalizedCriteria
+                  ? `\nSpecific Criteria: "${normalizedCriteria}". `
+                  : '\nEvaluate overall appearance and plating. ') +
+                `\n\nReturn ONLY a JSON object: {"score": <number>, "comment": "<string>"}.`,
+                },
                 { inline_data: { mime_type: 'image/jpeg', data: templateBase64 } },
                 { inline_data: { mime_type: 'image/jpeg', data: compareBase64 } }
               ],
@@ -69,13 +89,14 @@ export const score = onRequest(
 
     const data = await geminiRes.json();
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const scoreValue = parseScore(text);
+    console.log('Gemini raw text:', text);
+    const parsed = parseScore(text);
 
-    if (scoreValue == null || Number.isNaN(scoreValue)) {
+    if (!parsed || parsed.score == null || Number.isNaN(parsed.score)) {
       res.status(502).json({ error: 'failed to parse score', raw: text });
       return;
     }
 
-    res.json({ score: scoreValue });
+    res.json({ score: parsed.score, comment: parsed.comment });
   }
 );

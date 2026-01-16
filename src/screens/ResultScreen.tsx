@@ -16,6 +16,7 @@ type ResultScreenProps = {
   croppedTemplateUri: string | null;
   croppedCompareUri: string | null;
   score: number | null;
+  comment: string | null;
   loading: boolean;
   error: string | null;
 };
@@ -31,6 +32,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   croppedTemplateUri,
   croppedCompareUri,
   score,
+  comment,
   loading,
   error,
 }) => {
@@ -41,6 +43,16 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     : !capturedImageUri
       ? '比較画像を追加してください'
       : null;
+
+  const noteText = error
+    ? error
+    : comment
+      ? comment
+      : guidanceText
+        ? guidanceText
+        : loading || score !== null
+          ? ''
+          : 'Error: スコア計算を確認してください';
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -84,10 +96,10 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         {loading ? (
           <Text style={styles.scoreValue}>採点中です...</Text>
         ) : (
-          <Text style={styles.scoreValue}>{score ?? '？点'} </Text>
+          <Text style={styles.scoreValue}>{score ?? '？'}点 </Text>
         )}
         <Text style={styles.scoreNote}>
-          {error ? error : guidanceText ? guidanceText : 'Error: スコア計算を確認してください'}
+          {noteText}
         </Text>
       </View>
 

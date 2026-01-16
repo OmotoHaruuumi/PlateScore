@@ -1,5 +1,5 @@
 // app.tsx
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StatusBar, StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { HomeScreen } from './src/screens/HomeScreen';
@@ -11,6 +11,7 @@ import { useComparisonFlow } from './src/features/evaluation/hooks/useComparison
 import { usePlateScore } from './src/features/evaluation/hooks/usePlateScore';
 
 export default function App() {
+  const [scoringCriteria, setScoringCriteria] = useState<string>('');
   const {
     menus,
     selectedMenu,
@@ -40,6 +41,7 @@ export default function App() {
 
   const {
     score,
+    comment,
     loading,
     error,
     croppedTemplateUri,
@@ -47,6 +49,7 @@ export default function App() {
   } = usePlateScore(
     selectedMenu?.imageUri ?? null,
     capturedImageUri,
+    scoringCriteria,
     screen === 'result',
   );
 
@@ -100,11 +103,15 @@ export default function App() {
           onPressPickCompareImage={pickCompareImageFromLibrary}
           selectedMenuImageUri={selectedMenu?.imageUri}
           selectedMenuName={selectedMenu?.name}
-          selectedCompareImageUri={croppedCompareUri ?? capturedImageUri}
+          selectedCompareImageUri={
+            screen === 'result' ? (croppedCompareUri ?? capturedImageUri) : capturedImageUri
+          }
           currentScore={homeScore}
           scoreLoading={loading}
           scoreError={error}
           onPressStartScoring={goResult}
+          scoringCriteria={scoringCriteria}
+          onChangeScoringCriteria={setScoringCriteria}
         />
       ) : screen === 'capture' ? (
         <CaptureScreen
@@ -127,6 +134,7 @@ export default function App() {
         croppedTemplateUri={croppedTemplateUri}
         croppedCompareUri={croppedCompareUri}
         score={score}
+        comment={comment}
         loading={loading}
         error={error}
         onPressAddMenu={handleAddMenu}

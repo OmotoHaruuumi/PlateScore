@@ -1,6 +1,6 @@
 ﻿// src/screens/HomeScreen.tsx
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Image, useWindowDimensions, Modal, TouchableOpacity, Animated, Easing, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, useWindowDimensions, Modal, TouchableOpacity, Animated, Easing, ScrollView, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActionButton } from '../ui/ActionButton';
 
@@ -16,6 +16,8 @@ type HomeScreenProps = {
     scoreLoading?: boolean;
     scoreError?: string | null;
     onPressStartScoring?: () => void;
+    scoringCriteria?: string | null;
+    onChangeScoringCriteria?: (text: string) => void;
 };
 
 const BASE_WIDTH = 375;
@@ -33,6 +35,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     scoreLoading,
     scoreError,
     onPressStartScoring,
+    scoringCriteria,
+    onChangeScoringCriteria,
 }) => {
     const [previewUri, setPreviewUri] = useState<string | null>(null);
     const insets = useSafeAreaInsets();
@@ -55,12 +59,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         ? '計算中...'
         : currentScore !== null && currentScore !== undefined
             ? `${currentScore}`
-            : '？点';
+            : '？';
     const scoreNote =
         scoreError ??
         ('スコアはまだ計算されていません');
     const canScore = Boolean(selectedMenuImageUri && selectedCompareImageUri);
     const showScoreButton = canScore && Boolean(onPressStartScoring);
+    const criteriaValue = scoringCriteria ?? '';
 
     useEffect(() => {
         if (!showScoreButton) {
@@ -111,7 +116,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     >
                         <Text style={styles.sectionTitle}>現在の得点</Text>
                         <View style={styles.scoreRow}>
-                            <Text style={styles.scoreValue}>{scoreLabel}</Text>
+                            <Text style={styles.scoreValue}>{scoreLabel}点</Text>
                             {showScoreButton && (
                                 <TouchableOpacity
                                     activeOpacity={0.9}
@@ -170,6 +175,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                                 style={buttonStyle}
                             />
                         </View>
+                    </View>
+
+                    <View style={[styles.section, { marginBottom: spacingMd }]}>
+                        <Text style={styles.sectionTitle}>採点基準</Text>
+                        <TextInput
+                            style={styles.criteriaInput}
+                            placeholder="採点基準を入力（任意・50文字以内）"
+                            value={criteriaValue}
+                            onChangeText={(text) => onChangeScoringCriteria?.(text)}
+                            maxLength={50}
+                            editable={Boolean(onChangeScoringCriteria)}
+                        />
+                        <Text style={styles.criteriaHint}>空欄でも採点できます</Text>
                     </View>
 
                     <View style={[styles.section, { marginBottom: 0 }]}>
@@ -296,6 +314,20 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#666',
         marginBottom: 12,
+    },
+    criteriaInput: {
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        fontSize: 14,
+        backgroundColor: '#fafafa',
+    },
+    criteriaHint: {
+        fontSize: 12,
+        color: '#666',
+        marginTop: 6,
     },
     scoreValue: {
         fontSize: 20,

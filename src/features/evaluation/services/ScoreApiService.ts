@@ -13,7 +13,11 @@ async function toBase64(uri: string) {
   });
 }
 
-export async function fetchPlateScore(templateUri: string, compareUri: string) {
+export async function fetchPlateScore(
+  templateUri: string,
+  compareUri: string,
+  scoringCriteria: string | null,
+) {
   if (!SCORE_API_URL) {
     throw new Error('Score API URL is not configured');
   }
@@ -26,7 +30,7 @@ export async function fetchPlateScore(templateUri: string, compareUri: string) {
   const res = await fetch(`${SCORE_API_URL}/score`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ templateBase64, compareBase64 }),
+    body: JSON.stringify({ templateBase64, compareBase64, scoringCriteria }),
   });
 
   if (!res.ok) {
@@ -35,5 +39,8 @@ export async function fetchPlateScore(templateUri: string, compareUri: string) {
   }
 
   const data = await res.json();
-  return data.score as number;
+  return {
+    score: data.score as number,
+    comment: (data.comment as string | undefined) ?? null,
+  };
 }
