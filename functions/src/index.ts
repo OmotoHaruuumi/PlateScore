@@ -25,6 +25,7 @@ export const score = onRequest(
   {
     secrets: [geminiApiKey, geminiModel],
     cors: true,
+    invoker: 'public',
   },
   async (req, res) => {
     if (req.method !== 'POST') {

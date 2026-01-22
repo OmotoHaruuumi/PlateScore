@@ -28,7 +28,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "SCORE_API_URL": "http://192.168.11.3:5001/platescore-44967/us-central1"
+      "SCORE_API_URL": "https://score-5uyijqakca-uc.a.run.app"
     }
   }
 }
