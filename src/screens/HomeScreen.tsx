@@ -13,6 +13,7 @@ type HomeScreenProps = {
     selectedMenuName?: string;
     selectedCompareImageUri?: string | null;
     currentScore?: number | null;
+    scoreComment?: string | null;
     scoreLoading?: boolean;
     scoreError?: string | null;
     onPressStartScoring?: () => void;
@@ -21,7 +22,7 @@ type HomeScreenProps = {
 };
 
 const BASE_WIDTH = 375;
-const BASE_HEIGHT = 812;
+const MAX_CONTENT_WIDTH = 520;
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
     onPressStartCapture,
@@ -32,6 +33,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     selectedMenuName,
     selectedCompareImageUri,
     currentScore,
+    scoreComment,
     scoreLoading,
     scoreError,
     onPressStartScoring,
@@ -45,7 +47,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     const availableWidth = Math.max(0, screenWidth - outerPadding * 2);
     const pulseAnim = useRef(new Animated.Value(1)).current;
     const pulseLoopRef = useRef<Animated.CompositeAnimation | null>(null);
-    const scale = Math.min(availableWidth / BASE_WIDTH, screenHeight / BASE_HEIGHT);
+    const scale = Math.min(1.2, availableWidth / BASE_WIDTH);
     const spacingSm = Math.max(8, Math.round(10 * scale));
     const contentPadding = Math.max(16, Math.round(20 * scale));
     const spacingMd = Math.max(12, Math.round(16 * scale));
@@ -62,7 +64,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             : '？';
     const scoreNote =
         scoreError ??
-        ('スコアはまだ計算されていません');
+        (currentScore !== null && currentScore !== undefined
+            ? (scoreComment ?? '')
+            : 'スコアはまだ計算されていません');
     const canScore = Boolean(selectedMenuImageUri && selectedCompareImageUri);
     const showScoreButton = canScore && Boolean(onPressStartScoring);
     const criteriaValue = scoringCriteria ?? '';
@@ -111,7 +115,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 ]}
                 showsVerticalScrollIndicator={false}
             >
-                <View style={[styles.scaleStage, { transform: [{ scale }] }, { paddingHorizontal: contentPadding }]}>
+                <View
+                    style={[
+                        styles.scaleStage,
+                        { width: availableWidth, maxWidth: MAX_CONTENT_WIDTH },
+                        { paddingHorizontal: contentPadding },
+                    ]}
+                >
                     <View style={[styles.section, { marginBottom: spacingMd }]}
                     >
                         <Text style={styles.sectionTitle}>現在の得点</Text>
@@ -277,7 +287,6 @@ const styles = StyleSheet.create({
         paddingTop: 30,
     },
     scaleStage: {
-        width: BASE_WIDTH,
         alignSelf: 'center',
     },
     title: {

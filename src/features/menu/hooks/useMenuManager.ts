@@ -88,6 +88,7 @@ export function useMenuManager() {
       id: String(Date.now()),
       name: trimmedName,
       imageUri: pendingImageUri,
+      scoringCriteria: '',
     };
 
     setMenus((prev) => [...prev, newMenu]);
@@ -148,6 +149,16 @@ export function useMenuManager() {
     );
   };
 
+  const updateMenuCriteria = (menuId: string, criteria: string) => {
+    setMenus((prev) =>
+      prev.map((menu) =>
+        menu.id === menuId
+          ? { ...menu, scoringCriteria: criteria }
+          : menu
+      )
+    );
+  };
+
   return {
     menus,
     selectedMenu,
@@ -163,5 +174,6 @@ export function useMenuManager() {
     handleOpenMenuPicker,
     handleSelectMenu,
     handleDeleteMenu,
+    updateMenuCriteria,
   };
 }

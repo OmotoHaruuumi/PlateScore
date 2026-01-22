@@ -27,6 +27,7 @@ export default function App() {
     handleOpenMenuPicker,
     handleSelectMenu,
     handleDeleteMenu,
+    updateMenuCriteria,
   } = useMenuManager();
 
   const {
@@ -77,15 +78,26 @@ export default function App() {
     capturedImageUri,
   ]);
 
+  useEffect(() => {
+    setScoringCriteria(selectedMenu?.scoringCriteria ?? '');
+  }, [selectedMenu?.id, selectedMenu?.scoringCriteria]);
+
   const isScoreValid =
     Boolean(selectedMenu?.imageUri) &&
     Boolean(capturedImageUri) &&
     selectedMenu?.imageUri === lastScoredTemplateUriRef.current &&
     capturedImageUri === lastScoredCompareUriRef.current;
   const homeScore = isScoreValid ? score : null;
+  const homeComment = isScoreValid ? comment : null;
   const safeAreaEdges = screen === 'capture'
     ? ['left', 'right', 'bottom'] as const
     : ['top', 'left', 'right', 'bottom'] as const;
+  const handleStartScoring = () => {
+    if (selectedMenuId) {
+      updateMenuCriteria(selectedMenuId, scoringCriteria);
+    }
+    goResult();
+  };
 
   return (
     <SafeAreaProvider>
@@ -107,9 +119,10 @@ export default function App() {
             screen === 'result' ? (croppedCompareUri ?? capturedImageUri) : capturedImageUri
           }
           currentScore={homeScore}
+          scoreComment={homeComment}
           scoreLoading={loading}
           scoreError={error}
-          onPressStartScoring={goResult}
+          onPressStartScoring={handleStartScoring}
           scoringCriteria={scoringCriteria}
           onChangeScoringCriteria={setScoringCriteria}
         />
