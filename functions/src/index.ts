@@ -1,7 +1,8 @@
 ﻿import { onRequest } from 'firebase-functions/v2/https';
-// For production (Blaze), switch to Secret Manager:
-// import { defineSecret } from 'firebase-functions/params';
-// const geminiApiKey = defineSecret('GEMINI_API_KEY');
+import { defineSecret } from 'firebase-functions/params';
+
+const geminiApiKey = defineSecret('GEMINI_API_KEY');
+const geminiModel = defineSecret('GEMINI_MODEL');
 
 function parseScore(text: string) {
   try {
@@ -22,8 +23,7 @@ function parseScore(text: string) {
 
 export const score = onRequest(
   {
-    // For production (Blaze), enable secrets:
-    // secrets: [geminiApiKey],
+    secrets: [geminiApiKey, geminiModel],
     cors: true,
   },
   async (req, res) => {
@@ -42,12 +42,12 @@ export const score = onRequest(
         ? scoringCriteria.trim().slice(0, 20)
         : null;
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = geminiApiKey.value();
     if (!apiKey) {
       res.status(500).json({ error: 'GEMINI_API_KEY is not set' });
       return;
     }
-    const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    const model = geminiModel.value() || 'gemini-2.0-flash';
 
    const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
