@@ -19,14 +19,20 @@ export default function App() {
     isNameModalVisible,
     newMenuName,
     isMenuPickerVisible,
+    isEditModalVisible,
+    editMenuName,
     setNewMenuName,
     setIsMenuPickerVisible,
+    setEditMenuName,
     handleAddMenu,
     handleConfirmAddMenu,
     handleCancelAddMenu,
     handleOpenMenuPicker,
     handleSelectMenu,
     handleDeleteMenu,
+    handleStartEditMenu,
+    handleConfirmEditMenu,
+    handleCancelEditMenu,
     updateMenuCriteria,
   } = useMenuManager();
 
@@ -167,9 +173,15 @@ export default function App() {
         onConfirmAddMenu={handleConfirmAddMenu}
         onCancelAddMenu={handleCancelAddMenu}
         isMenuPickerVisible={isMenuPickerVisible}
+        isEditModalVisible={isEditModalVisible}
+        editMenuName={editMenuName}
+        onChangeEditMenuName={setEditMenuName}
+        onConfirmEditMenu={handleConfirmEditMenu}
+        onCancelEditMenu={handleCancelEditMenu}
         onSelectMenu={handleSelectMenu}
         onCloseMenuPicker={() => setIsMenuPickerVisible(false)}
         onDeleteMenu={handleDeleteMenu}
+        onStartEditMenu={handleStartEditMenu}
         />
       </SafeAreaView>
     </SafeAreaProvider>

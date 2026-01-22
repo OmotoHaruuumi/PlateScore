@@ -19,9 +19,15 @@ type MenuModalsProps = {
   onConfirmAddMenu: () => void;
   onCancelAddMenu: () => void;
   isMenuPickerVisible: boolean;
+  isEditModalVisible: boolean;
+  editMenuName: string;
+  onChangeEditMenuName: (name: string) => void;
+  onConfirmEditMenu: () => void;
+  onCancelEditMenu: () => void;
   onSelectMenu: (menuId: string) => void;
   onCloseMenuPicker: () => void;
   onDeleteMenu: (menuId: string) => void;
+  onStartEditMenu: (menuId: string) => void;
 };
 
 export const MenuModals: React.FC<MenuModalsProps> = ({
@@ -33,12 +39,52 @@ export const MenuModals: React.FC<MenuModalsProps> = ({
   onConfirmAddMenu,
   onCancelAddMenu,
   isMenuPickerVisible,
+  isEditModalVisible,
+  editMenuName,
+  onChangeEditMenuName,
+  onConfirmEditMenu,
+  onCancelEditMenu,
   onSelectMenu,
   onCloseMenuPicker,
   onDeleteMenu,
+  onStartEditMenu,
 }) => {
   return (
     <>
+
+      <Modal
+        visible={isEditModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={onCancelEditMenu}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>MENU NAME</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Enter menu name"
+              value={editMenuName}
+              onChangeText={onChangeEditMenuName}
+            />
+            <View style={styles.modalButtonRow}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonCancel]}
+                onPress={onCancelEditMenu}
+              >
+                <Text style={styles.modalButtonText}>CANCEL</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonOk]}
+                onPress={onConfirmEditMenu}
+              >
+                <Text style={styles.modalButtonText}>SAVE</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* 新規メニュー名入力モーダル */}
       <Modal
         visible={isNameModalVisible}
@@ -93,6 +139,13 @@ export const MenuModals: React.FC<MenuModalsProps> = ({
                     {menu.name}
                     {menu.id === selectedMenuId ? ' (selected)' : ''}
                   </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.menuEditButton}
+                  onPress={() => onStartEditMenu(menu.id)}
+                  accessibilityLabel="Edit menu"
+                >
+                  <Text style={styles.menuEditText}>EDIT</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.menuDeleteButton}
@@ -184,6 +237,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   menuDeleteText: {
+    fontSize: 16,
+    color: 'red',
+  },
+  menuEditButton: {
+    width: 52,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  menuEditText: {
     fontSize: 16,
   },
 });

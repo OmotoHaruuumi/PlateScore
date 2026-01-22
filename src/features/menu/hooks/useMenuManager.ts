@@ -1,19 +1,80 @@
 // src/features/menu/hooks/useMenuManager.ts
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Menu } from '../types';
+
+const STORAGE_MENUS_KEY = 'platescore.menus.v1';
+const STORAGE_SELECTED_MENU_ID_KEY = 'platescore.selectedMenuId.v1';
 
 export function useMenuManager() {
   const [menus, setMenus] = useState<Menu[]>([]);
   const [selectedMenuId, setSelectedMenuId] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const [isNameModalVisible, setIsNameModalVisible] = useState(false);
   const [pendingImageUri, setPendingImageUri] = useState<string | null>(null);
   const [newMenuName, setNewMenuName] = useState('');
   const [isMenuPickerVisible, setIsMenuPickerVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editMenuId, setEditMenuId] = useState<string | null>(null);
+  const [editMenuName, setEditMenuName] = useState('');
 
   const selectedMenu = menus.find((m) => m.id === selectedMenuId) ?? null;
+
+  useEffect(() => {
+    const hydrate = async () => {
+      try {
+        const [menusJson, selectedId] = await Promise.all([
+          AsyncStorage.getItem(STORAGE_MENUS_KEY),
+          AsyncStorage.getItem(STORAGE_SELECTED_MENU_ID_KEY),
+        ]);
+        if (menusJson) {
+          const parsed = JSON.parse(menusJson) as Menu[];
+          if (Array.isArray(parsed)) {
+            setMenus(parsed);
+          }
+        }
+        if (selectedId) {
+          setSelectedMenuId(selectedId);
+        }
+      } catch {
+        // Ignore hydration errors and fall back to empty state.
+      } finally {
+        setIsHydrated(true);
+      }
+    };
+    hydrate();
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    const persist = async () => {
+      try {
+        await AsyncStorage.setItem(STORAGE_MENUS_KEY, JSON.stringify(menus));
+      } catch {
+        // Ignore persistence errors.
+      }
+    };
+    persist();
+  }, [menus, isHydrated]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    const persistSelected = async () => {
+      try {
+        if (selectedMenuId) {
+          await AsyncStorage.setItem(STORAGE_SELECTED_MENU_ID_KEY, selectedMenuId);
+        } else {
+          await AsyncStorage.removeItem(STORAGE_SELECTED_MENU_ID_KEY);
+        }
+      } catch {
+        // Ignore persistence errors.
+      }
+    };
+    persistSelected();
+  }, [selectedMenuId, isHydrated]);
 
   // 新規メニュー登録（画像選択 → 名前入力モーダルを開く）
   const handlePickImageFromLibrary = async () => {
@@ -149,6 +210,41 @@ export function useMenuManager() {
     );
   };
 
+  const handleStartEditMenu = (menuId: string) => {
+    const target = menus.find((menu) => menu.id === menuId);
+    if (!target) return;
+    setEditMenuId(menuId);
+    setEditMenuName(target.name);
+    setIsMenuPickerVisible(false);
+    setIsEditModalVisible(true);
+  };
+
+  const handleConfirmEditMenu = () => {
+    if (!editMenuId) {
+      setIsEditModalVisible(false);
+      return;
+    }
+    const trimmedName = editMenuName.trim();
+    if (!trimmedName) {
+      Alert.alert('名前を入力してください');
+      return;
+    }
+    setMenus((prev) =>
+      prev.map((menu) =>
+        menu.id === editMenuId ? { ...menu, name: trimmedName } : menu
+      )
+    );
+    setIsEditModalVisible(false);
+    setEditMenuId(null);
+    setEditMenuName('');
+  };
+
+  const handleCancelEditMenu = () => {
+    setIsEditModalVisible(false);
+    setEditMenuId(null);
+    setEditMenuName('');
+  };
+
   const updateMenuCriteria = (menuId: string, criteria: string) => {
     setMenus((prev) =>
       prev.map((menu) =>
@@ -166,14 +262,20 @@ export function useMenuManager() {
     isNameModalVisible,
     newMenuName,
     isMenuPickerVisible,
+    isEditModalVisible,
+    editMenuName,
     setNewMenuName,
     setIsMenuPickerVisible,
+    setEditMenuName,
     handleAddMenu,
     handleConfirmAddMenu,
     handleCancelAddMenu,
     handleOpenMenuPicker,
     handleSelectMenu,
     handleDeleteMenu,
+    handleStartEditMenu,
+    handleConfirmEditMenu,
+    handleCancelEditMenu,
     updateMenuCriteria,
   };
 }
