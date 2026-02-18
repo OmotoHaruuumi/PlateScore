@@ -22,13 +22,20 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "permissions": ["CAMERA"]
+      "permissions": [
+        "CAMERA"
+      ],
+      "package": "com.haruumiomoto.PlateScore"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "SCORE_API_URL": "https://score-5uyijqakca-uc.a.run.app"
-    }
+      "SCORE_API_URL": "https://score-5uyijqakca-uc.a.run.app",
+      "eas": {
+        "projectId": "d6556373-8f98-407b-9ece-7a5d8e607be2"
+      }
+    },
+    "owner": "haruumi-omoto"
   }
 }

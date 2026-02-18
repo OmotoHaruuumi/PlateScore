@@ -1,137 +1,160 @@
-# プロジェクト構成
+# PlateScore — AI 飲食店従業員教育アプリ
 
-このプロジェクトは、食品の盛り付け評価アプリ（ラーメン以外にも拡張可能）を想定したディレクトリ構造になっています。
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
+![React Native](https://img.shields.io/badge/React_Native-20232A?style=flat&logo=react&logoColor=61DAFB)
+![Expo](https://img.shields.io/badge/Expo-000020?style=flat&logo=expo&logoColor=white)
+![Google Cloud](https://img.shields.io/badge/Google_Cloud_Run-4285F4?style=flat&logo=google-cloud&logoColor=white)
+![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logo=android&logoColor=white)
 
-## ディレクトリ構成
+> **クローズドテスト協力者募集中です。**
+> Google Play ストアの審査を通過しており、クローズドテスト完了次第リリース予定です。
+> Android をお持ちの方はぜひご連絡ください。
+> 連絡先: <!-- メールアドレスや SNS を記入してください -->
 
-```text
-src/
-  screens/        # 画面コンポーネント（ナビゲーションの単位）
-  features/       # 機能ごとのロジック・UI（ドメイン単位）
-  ui/             # 共通UIパーツ（ボタン、カードなど）
-  core/           # アプリ全体で使う土台（設定・状態・ネイティブ橋渡し）
-  lib/            # 小さなユーティリティ関数
-  types/          # 共通の型定義
-  mocks/          # モックデータ・開発用
+## 概要
 
+飲食店の盛り付けばらつき問題を解決するため、スタッフがお手本画像と実際の料理を比較撮影し、AI が 100 点満点でスコアリングする Android アプリです。現在 Google Play クローズドテストを実施中です。
 
-src/screens/
-  HomeScreen.tsx          # ホーム（メニュー選択・「撮影へ」ボタンなど）
-  CaptureScreen.tsx       # 撮影画面（カメラプレビュー）
-  ResultScreen.tsx        # 結果画面（採点結果表示）
-  SettingsScreen.tsx      # 設定（将来）
-  HistoryScreen.tsx       # 履歴（将来）
+---
 
+## スクリーンショット
 
-src/features/
-  menu/                   # メニュー定義・お手本データ
-    components/
-      MenuCard.tsx        # メニュー一覧カード
-      MenuList.tsx
-    hooks/
-      useMenuList.ts      # メニュー一覧取得
-    model/
-      menuTemplate.ts     # MenuTemplate 型・ロジック
-    api/
-      menuTemplateSource.ts  # assets/templates/*.json 読み込み
+| ホーム画面 | メニュー選択 | 透かし撮影 | 採点結果 |
+|:-:|:-:|:-:|:-:|
+| ![ホーム画面](screenshots/home/ホーム画面.jpg) | ![画像選択](screenshots/home/画像選択.jpg) | ![画像撮影](screenshots/capture/画像撮影.png) | ![採点結果](screenshots/result/採点結果after.jpg) |
 
-  capture/                # 撮影フロー
-    components/
-      CameraOverlay.tsx   # 器ガイド・お手本透過
-      CaptureButton.tsx
-    hooks/
-      useRamenCapture.ts  # 「撮る→ファイル保存」までをまとめる
-      useCameraPermission.ts
-    services/
-      cameraService.ts    # expo-camera を薄くラップする
+---
 
-  evaluation/             # 採点処理（JSレイヤ）
-    model/
-      evaluationTypes.ts  # BowlScore, SectorScore 型
-    services/
-      evaluationService.ts    # ネイティブ評価呼び出しの入口
-      dummyEvaluation.ts      # 最初はここにダミー採点
-    hooks/
-      useEvaluateRamen.ts     # 画面から使いやすくするためのフック
-    components/
-      BowlScoreView.tsx       # 器の円グラフ表示など
+## 主な工夫点
 
-  onboarding/             # 初回チュートリアル（必要になったら）
+### 1. お手本透かし撮影機能
 
+カメラのライブビュー上にお手本メニュー画像を半透明で重ねた状態で撮影できます。
+スライダーで透明度（20〜85%）をリアルタイムに調整できるため、盛り付けの位置・量・形をその場で直感的に比較しながら撮影できます。
 
-src/ui/
-  components/
-    Button.tsx
-    Text.tsx
-    Card.tsx
-    Modal.tsx
-    LoadingOverlay.tsx
-  layout/
-    Screen.tsx           # SafeArea入りの共通レイアウト
-    Centered.tsx
-  theme/
-    colors.ts
-    spacing.ts
-    typography.ts
-    index.ts
+```
+[カメラビュー] ← リアルタイムで重なる
+[お手本画像]   ← 透明度スライダーで調整
+```
 
+> 実装: [`src/screens/CaptureScreen.tsx`](src/screens/CaptureScreen.tsx)
 
-src/core/
-  navigation/             # React Navigation 設定（導入したら）
-    AppNavigator.tsx
-    types.ts
-  config/
-    env.ts                # 環境変数・フラグ
-    constants.ts          # 全体の定数
-  store/
-    appStore.ts           # Zustand / Redux / jotai など（使うなら）
-    index.ts
-  native/
-    modules/
-      RamenEvaluatorModule.ts  # ネイティブ評価モジュールのJSラッパ
-    index.ts
-  errors/
-    errorHandler.ts
-  analytics/
-    analyticsClient.ts    # 将来：イベント送信など
+---
 
+### 2. ゲーミフィケーションによるモチベーション設計
 
-src/lib/
-  math/
-    angle.ts           # 角度の正規化など
-  image/
-    pathHelpers.ts     # 画像パスの扱い
-  date/
-    format.ts
-  logger/
-    logger.ts
+採点結果をゲームのランク（S / A / B / C / D）として表示し、スコアに応じた配色テーマと視覚エフェクトで演出します。採点ボタンはスコアが準備できると脈動アニメーションで通知し、「使いたくなる」体験を設計しています。
 
+| ランク | 点数 | テーマカラー |
+|--------|------|-------------|
+| S | 90〜100 | ゴールド |
+| A | 75〜89  | グリーン |
+| B | 60〜74  | ブルー   |
+| C | 40〜59  | オレンジ |
+| D | ～39    | レッド   |
 
-src/types/
-  global.d.ts           # 画像importの型定義など
-  index.ts
+> 実装: [`src/screens/ResultScreen.tsx`](src/screens/ResultScreen.tsx)
 
-src/mocks/
-  templates/
-    shoyu_01.json       # 開発用のモックテンプレート
-  evaluation/
-    sampleScores.json   # ダミースコア
+---
 
-functions/
-  src/index.ts          # Firebase Functionを使いGemini APIを呼び、{ score }を返す
+### 3. メニューごとのカスタム採点基準
 
-assets/
-  images/
-    templates/
-      shoyu_01.png
-      miso_01.png
-    ui/
-      logo.png
-      splash.png
-  templates/
-    shoyu_01.json       # 本番で使うお手本定義
-    miso_01.json
-  fonts/
-    NotoSansJP-Regular.ttf
+各メニューに採点基準（例：「スープは器の 8 割まで」「薬味は中央に」）を自由記述で設定でき、その基準を AI のプロンプトに組み込んで採点します。店舗ごと・メニューごとに最適化した評価が可能です。
 
+> 実装: [`src/features/menu/`](src/features/menu/)
 
+---
+
+### 4. スマートなカメラフレームトリミング
+
+カメラのアスペクト比と実際の写真のアスペクト比の差異を計算し、画面に表示されている範囲のみを正確に切り出します。縦横両方向の撮影に対応しています。
+
+> 実装: [`src/screens/CaptureScreen.tsx`](src/screens/CaptureScreen.tsx)
+
+---
+
+### 5. AI プロンプト設計
+
+採点 AI（マルチモーダル LLM）へのプロンプトを以下の点で工夫しています。
+
+- **2 枚同時入力による比較評価**: お手本画像と撮影画像を同時に送信し、「お手本と比べてどれだけ再現できているか」という差分ベースの評価を実現しています。
+- **ユーザー定義ルールの動的注入**: ユーザーがメニューごとに設定した採点基準（例：「盛り付けは皿の中央に」）をプロンプトに埋め込み、汎用的な盛り付け評価だけでなく、店舗・メニュー固有のルールで採点できます。
+- **構造化出力の強制**: スコア（数値）とコメント（文字列）を確実に JSON 形式で返すようプロンプトを構成し、パース失敗を防いでいます。
+- **採点軸の明示**: 採点基準が未設定の場合も、色・形・量・配置などの一般的な盛り付け評価軸を指示することで、一貫したスコアリングを担保しています。
+
+> 実装: [`src/features/evaluation/services/ScoreApiService.ts`](src/features/evaluation/services/ScoreApiService.ts)
+
+---
+
+### 6. ローカルファーストのメニュー管理
+
+メニューの登録・編集・削除を `AsyncStorage` でオフライン永続化しています。ネットワーク接続なしでメニュー管理が完結し、採点時のみ API を呼び出すため通信コストを最小化しています。
+
+> 実装: [`src/features/menu/hooks/useMenuManager.ts`](src/features/menu/hooks/useMenuManager.ts)
+
+---
+
+## 技術スタック
+
+| カテゴリ | 技術 |
+|----------|------|
+| 言語 | TypeScript 5.9 |
+| フレームワーク | Expo 54 / React Native 0.81 |
+| カメラ | expo-camera, expo-image-picker |
+| 画像処理 | expo-image-manipulator, expo-file-system |
+| ストレージ | @react-native-async-storage/async-storage |
+| バックエンド | Google Cloud Run (Node.js) |
+| AI | マルチモーダル LLM（Base64 画像送信） |
+
+---
+
+## アーキテクチャ
+
+```
+PlateScore/
+├── App.tsx                          # 画面遷移ステートマシン
+└── src/
+    ├── screens/                     # 画面（Home / Capture / Result）
+    ├── features/
+    │   ├── menu/                    # メニュー管理（CRUD + AsyncStorage）
+    │   └── evaluation/              # AI採点パイプライン
+    │       ├── services/            # API クライアント
+    │       └── hooks/               # 採点・比較フロー管理
+    └── ui/                          # 共通 UI コンポーネント
+```
+
+採点パイプライン:
+```
+撮影画像 (URI)
+  → Base64 変換
+  → Cloud Run API (テンプレート画像 + 採点基準 + 撮影画像)
+  → AI スコア & コメント (0〜100点)
+  → ランク表示
+```
+
+---
+
+## 背景・課題
+
+飲食店経営者へのヒアリングで「従業員の熟練度や混雑時によって盛り付けにばらつきが出る」という課題を伺いました。既存の研修は口頭説明や紙のマニュアルが中心で、客観的な評価が困難でした。
+
+PlateScore は **AI による即時フィードバック** と **ゲーミフィケーション** を組み合わせ、継続的な自己改善サイクルを構築します。
+
+---
+
+## Getting Started（ローカル開発）
+
+```bash
+git clone https://github.com/<your-username>/PlateScore.git
+cd PlateScore
+npm install
+npx expo start
+```
+
+Android 実機または Expo Go アプリで確認できます。
+
+---
+
+## ライセンス
+
+MIT
