@@ -82,7 +82,7 @@
 - **構造化出力の強制**: スコア（数値）とコメント（文字列）を確実に JSON 形式で返すようプロンプトを構成し、パース失敗を防いでいます。
 - **採点軸の明示**: 採点基準が未設定の場合も、色・形・量・配置などの一般的な盛り付け評価軸を指示することで、一貫したスコアリングを担保しています。
 
-> 実装: [`src/features/evaluation/services/ScoreApiService.ts`](src/features/evaluation/services/ScoreApiService.ts)
+> 実装: [`functions/src/index.ts`](functions/src/index.ts)
 
 ---
 
