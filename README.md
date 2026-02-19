@@ -26,9 +26,7 @@
 ---
 
 ## 開発中の動画
-
-
-Uploading 1135cfa5-d759-42ca-81a2-a6e318986152.mp4…
+https://github.com/user-attachments/assets/eec4ad46-f3ba-46ee-8dc0-898412521213
 
 
 ## 主な工夫点
