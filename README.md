@@ -3,7 +3,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
 ![React Native](https://img.shields.io/badge/React_Native-20232A?style=flat&logo=react&logoColor=61DAFB)
 ![Expo](https://img.shields.io/badge/Expo-000020?style=flat&logo=expo&logoColor=white)
-![Google Cloud](https://img.shields.io/badge/Google_Cloud_Run-4285F4?style=flat&logo=google-cloud&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-DD2C00?style=flat&logo=firebase&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logo=android&logoColor=white)
 
 > **クローズドテスト協力者募集中です。**
@@ -107,7 +107,7 @@ https://github.com/user-attachments/assets/eec4ad46-f3ba-46ee-8dc0-898412521213
 | カメラ | expo-camera, expo-image-picker |
 | 画像処理 | expo-image-manipulator, expo-file-system |
 | ストレージ | @react-native-async-storage/async-storage |
-| バックエンド | Google Cloud Run (Node.js) |
+| バックエンド | Firebase Cloud Functions v2 (Node.js 20) |
 | AI | マルチモーダル LLM（Base64 画像送信） |
 
 ---

@@ -121,9 +121,7 @@ export default function App() {
           onPressPickCompareImage={pickCompareImageFromLibrary}
           selectedMenuImageUri={selectedMenu?.imageUri}
           selectedMenuName={selectedMenu?.name}
-          selectedCompareImageUri={
-            screen === 'result' ? (croppedCompareUri ?? capturedImageUri) : capturedImageUri
-          }
+          selectedCompareImageUri={croppedCompareUri ?? capturedImageUri}
           currentScore={homeScore}
           scoreComment={homeComment}
           scoreLoading={loading}
